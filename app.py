@@ -5,7 +5,7 @@ st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wid
 
 # --- NEW: SIDEBAR PROFILE INPUTS ---
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Android_O_Preview_Logo.png", width=50)
+    st.image("https://placehold.co/200x100/png?text=YOUR+LOGO", width=150)
     st.title("My Fit Profile")
     st.markdown("Customize your AI recommendations:")
     
