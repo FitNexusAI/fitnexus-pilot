@@ -3,15 +3,19 @@ from fit_engine import FitNexusAgent
 
 st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wide")
 
-# --- NEW: SIDEBAR PROFILE INPUTS ---
+# --- SIDEBAR PROFILE INPUTS ---
 with st.sidebar:
+    # UPDATED LOGO: Uses the placeholder text generator so it never looks broken
     st.image("https://placehold.co/200x100/png?text=YOUR+LOGO", width=150)
     st.title("My Fit Profile")
     st.markdown("Customize your AI recommendations:")
     
     # Collect User Stats
     user_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"])
-    user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL"])
+    
+    # --- UPDATED: ADDED 2XL, 3XL, 4XL ---
+    user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"])
+    
     user_pref = st.radio("I prefer clothes to fit:", ["Tight / Compression", "Standard / Regular", "Loose / Oversized"])
     
     # Store this in a dictionary
