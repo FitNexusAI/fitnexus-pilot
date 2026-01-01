@@ -25,22 +25,58 @@ class FitNexusAgent:
 
     def retrieve_products(self, query):
         if self.catalog.empty: return []
+        
+        # 1. NORMALIZE QUERY (Lower case + remove punctuation)
         query = query.lower().translate(str.maketrans('', '', string.punctuation))
-        stop_words = {'the', 'a', 'an', 'and', 'is', 'are', 'in', 'on', 'about', 'tell', 'me', 'show', 'i', 'need', 'want', 'do', 'you', 'have', 'fit', 'does', 'how'}
+        
+        # 2. SYNONYM MAPPING (The "Sweatshirt" Fix)
+        # We replace user terms with the specific words in our catalog
+        synonyms = {
+            "sweatshirt": "hoodie",
+            "pullover": "hoodie",
+            "jumper": "hoodie",
+            "tshirt": "tee",
+            "shirt": "tee",
+            "t-shirt": "tee",
+            "pants": "leggings",
+            "tights": "leggings",
+            "socks": "accessories"
+        }
+        for word, target in synonyms.items():
+            query = query.replace(word, target)
+
+        # 3. EXPANDED STOP WORDS (The "Hallucination" Fix)
+        # We remove ALL conversational filler so matches are strict
+        stop_words = {
+            'the', 'a', 'an', 'and', 'is', 'are', 'in', 'on', 'about', 'tell', 'me', 'show', 
+            'i', 'need', 'want', 'do', 'you', 'have', 'fit', 'does', 'how', 'looking', 'for', 
+            'find', 'search', 'get', 'buy', 'purchase', 'recommend', 'what', 'where', 'when', 'why'
+        }
+        
         query_words = [w for w in query.split() if w not in stop_words]
         
+        # If the user only typed stop words, return nothing
+        if not query_words:
+            return []
+
         scored_results = []
         for index, row in self.catalog.iterrows():
-            searchable_text = f"{row['name']} {row['category']} {row['description']} {row['fit_type']}".lower()
+            # Create a "Searchable String" from the product row
+            # We weigh the Name and Category higher by repeating them
+            searchable_text = f"{row['name']} {row['name']} {row['category']} {row['description']}".lower()
+            
+            # Count how many key words match
             score = sum(1 for word in query_words if word in searchable_text)
+            
+            # STRICT THRESHOLD: Must match at least 1 keyword
             if score > 0:
                 scored_results.append((score, row))
         
+        # Sort by score (highest match first)
         scored_results.sort(key=lambda x: x[0], reverse=True)
         return [item[1] for item in scored_results]
 
     def generate_response(self, user_input, product_data, user_profile):
-        # We inject the User's Profile directly into the AI's instructions
         system_prompt = (
             "You are FitNexus, an elite personal stylist. "
             "Your goal is to recommend the best size based on the USER'S PROFILE. "
@@ -72,7 +108,6 @@ class FitNexusAgent:
         except Exception as e:
             return f"Error: {e}"
 
-    # Now accepts 'user_profile' as an argument
     def think(self, user_input, user_profile={"size": "Unknown", "preference": "Standard"}):
         logging.info(f"User asked: {user_input}")
         matches = self.retrieve_products(user_input)
@@ -80,10 +115,10 @@ class FitNexusAgent:
         result = {"text": "", "image": None, "product_name": None}
 
         if not matches:
-            result["text"] = "I couldn't find a specific product matching that description. Could you be more specific?"
+            # Fallback if no keywords matched (stops hallucinations)
+            result["text"] = "I couldn't find a specific product matching that description. I can help you with Leggings, Shorts, Tees, Sports Bras, Hoodies, or Socks."
         else:
             best_match = matches[0]
-            # Pass the profile to the generator
             result["text"] = self.generate_response(user_input, best_match, user_profile)
             
             img_url = best_match.get("image_url", None)
