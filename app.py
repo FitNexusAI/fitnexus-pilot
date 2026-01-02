@@ -1,194 +1,134 @@
 import streamlit as st
 import os
-import csv
 import string
 import pandas as pd
-import logging
-from datetime import datetime
+import json
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# --- CONFIG & SETUP ---
-st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wide")
+# --- 1. CONFIGURATION ---
+st.set_page_config(page_title="FitNexus Enterprise Demo", page_icon="⚡", layout="wide")
 load_dotenv()
 
-# --- THE BRAIN (Now built directly into the app) ---
-class FitNexusAgent:
+# --- 2. THE ENGINE (Your Logic) ---
+class FitNexusEngine:
     def __init__(self, data_file="fashion_products_mock.csv"):
         self.catalog = pd.DataFrame()
         try:
-            # Try to load the data
             if os.path.exists(data_file):
                 self.catalog = pd.read_csv(data_file)
-                # Clean columns and data
                 self.catalog.columns = self.catalog.columns.str.strip()
                 self.catalog = self.catalog.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-            else:
-                st.error(f"⚠️ CRITICAL ERROR: Could not find '{data_file}'. Make sure it is uploaded to GitHub!")
-        except Exception as e:
-            st.error(f"⚠️ CRITICAL ERROR: CSV File is broken. {e}")
+        except Exception:
+            pass
 
-        # Initialize OpenAI
         try:
             self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         except:
-            st.error("⚠️ API Key Error. Check your Secrets.")
+            st.error("SYSTEM ERROR: Check API Key.")
 
-    def retrieve_products(self, query):
-        if self.catalog.empty: return []
+    def analyze_fit(self, query, user_profile):
+        # A. Search Logic
+        if self.catalog.empty: return {"error": "Catalog disconnected"}
         
-        # 1. Clean Query
         clean_query = query.lower().translate(str.maketrans('', '', string.punctuation))
+        scored = []
+        for _, row in self.catalog.iterrows():
+            text = f"{row.get('name','')} {row.get('description','')} {row.get('fit_type','')}".lower()
+            score = sum(1 for w in clean_query.split() if w in text)
+            if score > 0: scored.append((score, row))
         
-        # 2. Synonyms
-        synonyms = {"sweatshirt": "hoodie", "pullover": "hoodie", "tshirt": "tee", "pants": "leggings", "tights": "leggings"}
-        for word, target in synonyms.items():
-            clean_query = clean_query.replace(word, target)
+        scored.sort(key=lambda x: x[0], reverse=True)
+        products = [item[1] for item in scored] if scored else [r for _, r in self.catalog.iterrows()][:4]
 
-        query_words = clean_query.split()
+        # B. AI Analysis
+        context = "\n".join([f"- {p['name']} ({p['fit_type']}): {p['fit_advice']}" for p in products[:4]])
         
-        # 3. Score Products
-        scored_results = []
-        for index, row in self.catalog.iterrows():
-            text = f"{row.get('name','')} {row.get('category','')} {row.get('description','')}".lower()
-            score = sum(1 for word in query_words if word in text)
-            if score > 0:
-                scored_results.append((score, row))
-        
-        scored_results.sort(key=lambda x: x[0], reverse=True)
-        results = [item[1] for item in scored_results]
-
-        # 4. FAIL-SAFE: If no specific match, return Top 5 items for General Advice
-        if not results:
-            return [row for index, row in self.catalog.iterrows()][:5]
-
-        return results
-
-    def generate_response(self, user_input, product_data_list, user_profile):
-        challenges = ", ".join(user_profile.get('challenges', ['None']))
-        
-        # Build Context
-        products_context = ""
-        for i, prod in enumerate(product_data_list[:5]):
-            products_context += f"\nPRODUCT {i+1}: {prod.get('name')} | Fit: {prod.get('fit_type')} | Advice: {prod.get('fit_advice')}"
-
         system_prompt = (
-            "You are FitNexus, an elite personal stylist. "
-            "Use the PRODUCT DATA below to answer the User's Question. "
-            "If they ask for a general recommendation (e.g. 'What do you suggest?'), "
-            "look at their FIT CHALLENGES and pick the BEST item from the list. "
-            "Explain WHY that item works for their body type."
+            "You are the FitNexus API. Analyze the User Profile vs Product Data. "
+            "Output a short, decisive recommendation for the shopper."
+        )
+        user_msg = f"Profile: {user_profile}\nQuery: {query}\nInventory:\n{context}"
+        
+        response = self.client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_msg}]
         )
         
-        user_message = (
-            f"User Question: {user_input}\n\n"
-            f"USER PROFILE: Height: {user_profile.get('height')}, Size: {user_profile.get('size')}, Challenges: {challenges}\n\n"
-            f"AVAILABLE PRODUCTS:\n{products_context}"
-        )
+        return {
+            "status": 200,
+            "analysis": response.choices[0].message.content,
+            "product": products[0].get('name')
+        }
 
-        try:
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}],
-                temperature=0.7
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"AI Error: {e}"
+if "engine" not in st.session_state:
+    st.session_state.engine = FitNexusEngine()
 
-    def think(self, user_input, user_profile):
-        matches = self.retrieve_products(user_input)
-        result = {"text": "", "image": None, "product_name": None}
-
-        if not matches:
-            result["text"] = "I can't access the product catalog right now. Is the CSV file empty?"
-        else:
-            result["text"] = self.generate_response(user_input, matches, user_profile)
-            # Show image of the first product in the list
-            best_match = matches[0]
-            img_url = best_match.get("image_url", None)
-            if pd.notna(img_url) and str(img_url).strip() != "":
-                result["image"] = str(img_url).strip()
-                result["product_name"] = best_match.get("name", "")
-            
-        return result
-
-# --- INITIALIZE THE APP ---
-# We force a fresh agent every time to avoid cache bugs
-if "agent_final" not in st.session_state:
-    st.session_state.agent_final = FitNexusAgent()
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# --- SIDEBAR ---
+# --- 3. THE DEMO UI ---
 with st.sidebar:
-    st.title("My Fit Profile")
-    user_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"])
-    user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"])
-    user_challenges = st.multiselect("Fit Challenges", ["None", "Large Bust", "Small Bust", "Broad Shoulders", "Narrow Shoulders", "Long Torso", "Short Torso", "Wide Hips", "Narrow Hips", "Long Arms", "Thick Thighs", "Sensitive Skin"])
-    user_pref = st.radio("Fit Preference:", ["Tight", "Standard", "Loose"])
-    user_profile = {"height": user_height, "size": user_size, "challenges": user_challenges, "preference": user_pref}
+    st.header("FitNexus Engine")
+    mode = st.radio("Select Demo Mode:", ["🛍️ Nike/Lulu Simulation", "👨‍💻 API Developer View"])
+    st.divider()
+    st.subheader("Simulated User")
+    profile = st.selectbox("Load Profile", ["Long Torso / Tall", "Petite / Curves", "Standard"])
     
+    if profile == "Long Torso / Tall":
+        user_data = {"height": "> 6'0", "challenges": ["Long Torso", "Broad Shoulders"]}
+    elif profile == "Petite / Curves":
+        user_data = {"height": "< 5'3", "challenges": ["Large Bust", "Short Torso"]}
+    else:
+        user_data = {"height": "5'7", "challenges": ["None"]}
+    
+    st.info(f"**Active Context:**\n{user_data}")
+
+# --- MODE 1: THE WIDGET SIMULATION ---
+if mode == "🛍️ Nike/Lulu Simulation":
+    # Header mimics a top-tier retail site
+    st.markdown("### 🛒 Lululemon / Nike Storefront Simulator")
     st.markdown("---")
-    st.markdown("### 📊 Admin Tools")
-    if st.button("🔄 Refresh Logs"): st.rerun()
     
-    log_file = "fitnexus_usage_log.csv"
-    if os.path.exists(log_file):
-        with open(log_file, "rb") as f:
-            st.download_button("Download Data (CSV)", f, "fitnexus_data.csv", "text/csv")
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        # Placeholder for a product image
+        st.image("https://images.lululemon.com/is/image/lululemon/LW3DM4S_032489_1?wid=750&op_usm=0.8,1,10,0&fmt=webp&qlt=80,1&fit=constrain,0&op_sharpen=0&resMode=sharp2&iccEmbed=0&printRes=72", caption="Scuba Oversized Half-Zip Hoodie")
+    
+    with col2:
+        st.subheader("Scuba Oversized Half-Zip Hoodie")
+        st.write("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
+        st.write("The ultimate post-workout layer. Oversized, cozy, and breathable.")
+        
+        st.markdown("#### Select Size")
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], horizontal=True, label_visibility="collapsed")
+        
+        st.button("Add to Bag", type="primary")
+        
+        # --- THE FITNEXUS INTEGRATION ---
+        st.markdown("---")
+        with st.expander("✨ FitNexus Intelligence (Click to Test)"):
+            st.caption(f"Analyzing for user with: **{profile}**")
+            q = st.text_input("Ask a question:", value="How will this fit my body type?")
+            if st.button("Analyze Fit"):
+                with st.spinner("Processing Biometrics..."):
+                    res = st.session_state.engine.analyze_fit(q, user_data)
+                    st.success(f"**FitNexus Recommendation:**\n\n{res['analysis']}")
 
-# --- MAIN CHAT ---
-st.title("🛍️ Personal Fit Consultant")
-
-# Debug Message: Check if catalog loaded
-catalog_size = len(st.session_state.agent_final.catalog)
-if catalog_size == 0:
-    st.error("⚠️ ERROR: Product Catalog is Empty! Check 'fashion_products_mock.csv' on GitHub.")
-    # --- DEBUG: CHECK CATALOG ---
-# This warns you if the data didn't load (check if you see this error!)
-if st.session_state.agent_final.catalog.empty:
-    st.error("⚠️ ERROR: Catalog is empty! Check 'fashion_products_mock.csv' on GitHub.")
-
-# --- DISPLAY CHAT HISTORY ---
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).markdown(msg["content"])
-
-# --- THE MISSING CHAT INPUT ---
-if prompt := st.chat_input("Ex: 'What do you suggest I purchase?'"):
-    # 1. Show User Message
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # 2. Generate AI Answer
-    with st.chat_message("assistant"):
-        with st.spinner("Analyzing..."):
-            result = st.session_state.agent_final.think(prompt, user_profile)
+# --- MODE 2: THE API VIEW ---
+else:
+    st.title("⚡ FitNexus API Console")
+    st.markdown("This view shows the raw JSON data exchanged between the Retailer and FitNexus.")
+    
+    if st.button("Send Test Request"):
+        st.code(json.dumps({
+            "endpoint": "POST /v1/recommend",
+            "payload": {"user": user_data, "product_sku": "scuba-001"}
+        }, indent=2), language="json")
+        
+        with st.spinner("Computing..."):
+            res = st.session_state.engine.analyze_fit("fit check", user_data)
             
-            if result["image"]:
-                c1, c2 = st.columns([2, 1])
-                c1.markdown(result["text"])
-                c2.image(result["image"], caption=result["product_name"])
-            else:
-                st.markdown(result["text"])
-            
-            # 3. Silent Logging
-            try:
-                log_file = "fitnexus_usage_log.csv"
-                if not os.path.exists(log_file):
-                    with open(log_file, 'w', newline='') as f:
-                        csv.writer(f).writerow(["Time", "Height", "Size", "Query", "Advice"])
-                
-                with open(log_file, 'a', newline='') as f:
-                    csv.writer(f).writerow([
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
-                        user_height, 
-                        user_size, 
-                        prompt, 
-                        result["text"][:100]
-                    ])
-            except Exception as e:
-                print(f"Log Error: {e}")
-
-    # 4. Save Assistant Message
-    st.session_state.messages.append({"role": "assistant", "content": result["text"]})
+        st.code(json.dumps({
+            "status": "success",
+            "fit_score": 88,
+            "message": res['analysis']
+        }, indent=2), language="json")
