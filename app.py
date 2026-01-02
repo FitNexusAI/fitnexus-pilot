@@ -130,4 +130,88 @@ if "engine" not in st.session_state:
     st.session_state.engine = FitNexusEngine()
 
 # --- 4. THE DEMO UI ---
-with
+with st.sidebar:
+    st.header("FitNexus Engine")
+    mode = st.radio("Select Demo Mode:", ["🛍️ Retail Storefront (Demo)", "👨‍💻 API Developer View"])
+    st.divider()
+    
+    st.subheader("Simulated Shopper Context")
+    sim_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"], index=2)
+    sim_challenges = st.multiselect(
+        "Fit Challenges", 
+        ["Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Large Bust", "Small Bust", "Wide Hips"],
+        default=[]
+    )
+    user_data = {"height": sim_height, "challenges": sim_challenges if sim_challenges else ["None"]}
+    st.info(f"**Active Biometrics:**\nHeight: {sim_height}\nIssues: {', '.join(sim_challenges) if sim_challenges else 'None'}")
+    
+    # RESET BUTTON
+    if st.button("Reset Demo"):
+        st.session_state.current_product_key = "scuba_hoodie"
+        if "last_result" in st.session_state: del st.session_state.last_result
+        st.rerun()
+
+# --- MODE 1: WHITE LABEL STOREFRONT ---
+if mode == "🛍️ Retail Storefront (Demo)":
+    st.markdown("### 🛒 Premium Activewear Co. (Integration Demo)")
+    st.markdown("---")
+    
+    # LOAD CURRENT PRODUCT FROM "DB"
+    current_item = PRODUCT_DB[st.session_state.current_product_key]
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.image(current_item["image"], caption=f"Product ID: {current_item['id']}")
+    
+    with col2:
+        st.subheader(current_item["name"])
+        st.write(f"⭐⭐⭐⭐⭐ (4.8) | **{current_item['price']}**")
+        st.write(current_item["desc"])
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], horizontal=True, label_visibility="collapsed")
+        st.button("Add to Bag", type="primary")
+        
+        st.markdown("---")
+        
+        # THE WIDGET
+        with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
+            st.caption(f"Analyzing for: **{sim_height}** | **{', '.join(sim_challenges)}**")
+            q = st.text_input("Ask a question:", value="Will this fit my body type?")
+            
+            if st.button("Run Analysis"):
+                with st.spinner("Processing technical specs..."):
+                    st.session_state.last_result = st.session_state.engine.analyze_fit(q, user_data, forced_product_context=current_item["name"])
+            
+            if "last_result" in st.session_state:
+                res = st.session_state.last_result
+                text_lower = res['analysis'].lower()
+                
+                # Pivot Logic
+                is_pivot = (
+                    "alternative" in text_lower or 
+                    "instead" in text_lower or 
+                    ("not a good fit" in text_lower and "recommend" in text_lower)
+                )
+                
+                if is_pivot:
+                    st.warning(f"**Fit Alert:**\n\n{res['analysis']}")
+                    
+                    # --- THE MAGIC BUTTON ---
+                    if st.session_state.current_product_key != "define_jacket":
+                        if st.button("👉 Shop Recommended Alternative (Define Jacket)", type="primary", use_container_width=True):
+                            st.session_state.current_product_key = "define_jacket"
+                            del st.session_state.last_result 
+                            st.rerun()
+                else:
+                    st.success(f"**Fit Confirmation:**\n\n{res['analysis']}")
+
+# --- MODE 2: API VIEW ---
+else:
+    st.title("⚡ FitNexus API Console")
+    st.markdown("### Developer Documentation")
+    if st.button("Send Mock Request"):
+        st.code(json.dumps({
+            "endpoint": "POST /v1/analyze_fit",
+            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HZ-001"}
+        }, indent=2), language="json")
+        st.code(json.dumps({"status": "success", "message": "High Risk: Torso Length Mismatch"}, indent=2), language="json")
