@@ -132,11 +132,11 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 # =========================================================
-# VIEW A: THE ORIGINAL PRODUCT (Textured Fleece Zip-Up)
+# VIEW A: THE ORIGINAL PRODUCT (Textured Fleece Pullover)
 # =========================================================
 if st.session_state.view_mode == 'original':
     with col1:
-        # ORIGINAL IMAGE: Pexels ID 7242947 (Correctly Restored)
+        # ORIGINAL HERO IMAGE: Woman in Grey Hoodie Pullover
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
@@ -144,10 +144,10 @@ if st.session_state.view_mode == 'original':
         )
 
     with col2:
-        st.title("Textured Fleece Zip-Up Jacket")
+        st.title("Textured Fleece Pullover Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a smooth full-length zipper, a relaxed silhouette, and soft, insulating fabric.")
+        st.write("A versatile layer for seasonal transitions. This textured fleece features a relaxed silhouette and soft, insulating fabric.")
         
         st.write("**Size**")
         size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -178,12 +178,6 @@ if st.session_state.view_mode == 'original':
                         
                     if "Curvy Hips" in selected_challenges or "Wide Hips" in selected_challenges:
                         analysis_points.append("The hemline features a non-stretch binding. For **Curvy Hips**, this often causes the jacket to ride up when walking rather than sitting flat.")
-                    
-                    if "Full Bust" in selected_challenges:
-                        analysis_points.append("The chest measurement is fitted. For a **Full Bust**, the zipper may pull across the chest line.")
-
-                    if not analysis_points:
-                        analysis_points.append(f"The specific combination of {', '.join(selected_challenges)} suggests the standard cut of this jacket may not provide the optimal comfort you are looking for.")
 
                     final_analysis = " ".join(analysis_points)
 
@@ -204,13 +198,13 @@ if st.session_state.view_mode == 'original':
                     st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
 # =========================================================
-# VIEW B: THE RECOMMENDED ALTERNATIVE (CloudSoft Longline)
+# VIEW B: THE RECOMMENDED ALTERNATIVE (Verified Zip-Up)
 # =========================================================
 else:
     with col1:
-        # NEW IMAGE: Pexels ID 6311613 (Woman in Grey Zip-Up Hoodie)
+        # VERIFIED ZIP-UP IMAGE: Woman wearing a grey hoodie with a visible zipper track
         st.image(
-            "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
@@ -221,7 +215,7 @@ else:
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
         
-        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer than standard) and a full zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
+        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer than standard) and a full-length zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
         
         st.write("**Size**")
         size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
