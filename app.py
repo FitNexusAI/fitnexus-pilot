@@ -40,7 +40,17 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 2. FIT LOGIC HANDLER
+# 2. STATE MANAGEMENT
+# ---------------------------------------------------------
+
+if 'previous_selection' not in st.session_state:
+    st.session_state.previous_selection = ['None']
+
+if 'view_mode' not in st.session_state:
+    st.session_state.view_mode = 'original'
+
+# ---------------------------------------------------------
+# 3. FIT LOGIC HANDLER
 # ---------------------------------------------------------
 FIT_CHALLENGES = [
     "None",
@@ -73,12 +83,8 @@ def handle_fit_challenge_change():
     # Update history tracking
     st.session_state.previous_selection = st.session_state.fit_challenges_selector
 
-# Initialize session state for history
-if 'previous_selection' not in st.session_state:
-    st.session_state.previous_selection = ['None']
-
 # ---------------------------------------------------------
-# 3. SIDEBAR (The Left Panel)
+# 4. SIDEBAR (The Left Panel)
 # ---------------------------------------------------------
 with st.sidebar:
     st.header("FitNexus Engine")
@@ -95,7 +101,7 @@ with st.sidebar:
     body_type = st.selectbox(
         "Body Type", 
         ["Curvy", "Athletic / Muscular", "Straight / Slender", "Full Figured", "Petite Frame"],
-        index=2
+        index=0
     )
     
     # --- Fit Challenge Selector ---
@@ -119,9 +125,16 @@ with st.sidebar:
         **Issues:** {", ".join(selected_challenges)}
         """
     )
+    
+    # Reset button for demo purposes
+    if st.session_state.view_mode == 'alternative':
+        st.divider()
+        if st.button("🔄 Reset Demo to Start"):
+            st.session_state.view_mode = 'original'
+            st.rerun()
 
 # ---------------------------------------------------------
-# 4. MAIN CONTENT AREA (RETAIL STOREFRONT)
+# 5. MAIN CONTENT AREA (DYNAMIC)
 # ---------------------------------------------------------
 
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
@@ -129,61 +142,111 @@ st.divider()
 
 col1, col2 = st.columns([1, 1])
 
-with col1:
-    # --- IMAGE (Woman of Color, Grey Zip-Up) ---
-    st.image(
-        "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-        caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
-        use_container_width=True
-    )
+# =========================================================
+# VIEW A: THE ORIGINAL PRODUCT
+# =========================================================
+if st.session_state.view_mode == 'original':
+    with col1:
+        st.image(
+            "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
+            caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
+            use_container_width=True
+        )
 
-with col2:
-    # --- UPDATED TITLE & DESCRIPTION (Zipper Correction) ---
-    st.title("Textured Fleece Zip-Up Jacket")
-    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
-    
-    st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a smooth full-length zipper, a relaxed silhouette, and soft, insulating fabric. Perfect for layering over activewear or casual tops.")
-    
-    st.write("**Size**")
-    size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
-    
-    st.button("Add to Bag")
-
-    st.write("") 
-    st.write("") 
-
-    # --- INTELLIGENCE SECTION ---
-    with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
-        st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
+    with col2:
+        st.title("Textured Fleece Zip-Up Jacket")
+        st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        question = st.text_input("Ask a question:", "Will this fit my body type?")
+        st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a smooth full-length zipper, a relaxed silhouette, and soft, insulating fabric.")
         
-        if st.button("Run Analysis"):
-            # Check if user actually has challenges selected to show a relevant alert
-            if "None" in selected_challenges:
-                 st.success(
-                    f"""
-                    **Fit Confirmation:**
-                    
-                    Based on your profile ({height}, {body_type}), this item is a **Great Match**. 
-                    
-                    The relaxed fit is intentional and aligns with your body type. No specific fit challenges were detected that would impact sizing.
-                    """
-                )
-            else:
-                st.warning(
-                    f"""
-                    **Fit Alert:**
-                    
-                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Textured Fleece Zip-Up Jacket** - 
-                    may not be an ideal fit for your preferences.
-                    
-                    **Analysis:**
-                    While the model image shows a relaxed fit, our returns data indicates this item sits just below the waist. For a user with a **Long Torso**, this often results in the jacket feeling like a "cropped" fit rather than the intended length.
-                    
-                    **Recommendation:**
-                    As an alternative, I recommend the **CloudSoft Longline Zip-Up** for reliable extra length.
-                    """
-                )
+        st.write("**Size**")
+        size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
+        
+        st.button("Add to Bag")
+
+        st.write("") 
+        st.write("") 
+
+        # --- INTELLIGENCE SECTION (Logic: Dynamic Warnings) ---
+        with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
+            st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
             
-                st.button("👉 Shop Recommended Alternative")
+            question = st.text_input("Ask a question:", "Will this fit my body type and address my fit challenges?")
+            
+            if st.button("Run Analysis"):
+                if "None" in selected_challenges:
+                     st.success(f"Fit Confirmation: Great Match! The relaxed fit aligns with your {body_type} body type.")
+                else:
+                    # --- DYNAMIC TEXT GENERATION ---
+                    # This block builds the sentences based on what is actually selected
+                    analysis_points = []
+                    
+                    if "Long Torso" in selected_challenges:
+                        analysis_points.append("This jacket sits just below the waist (22\" length). For a **Long Torso**, this often feels like a 'cropped' fit rather than the intended length.")
+                    
+                    if "Broad Shoulders" in selected_challenges:
+                        analysis_points.append("The shoulder seams are structured and true-to-size. For **Broad Shoulders**, this may feel restrictive, especially when layering over other clothes.")
+                        
+                    if "Curvy Hips" in selected_challenges or "Wide Hips" in selected_challenges:
+                        analysis_points.append("The hemline features a non-stretch binding. For **Curvy Hips**, this often causes the jacket to ride up when walking rather than sitting flat.")
+                    
+                    if "Full Bust" in selected_challenges:
+                        analysis_points.append("The chest measurement is fitted. For a **Full Bust**, the zipper may pull across the chest line.")
+
+                    # Fallback for other tags
+                    if not analysis_points:
+                        analysis_points.append(f"The specific combination of {', '.join(selected_challenges)} suggests the standard cut of this jacket may not provide the optimal comfort you are looking for.")
+
+                    # Join the points into a single string
+                    final_analysis = " ".join(analysis_points)
+
+                    st.warning(
+                        f"""
+                        **Fit Alert:**
+                        
+                        Based on the user profile ({body_type}, {', '.join(selected_challenges)}), this specific product may not be an ideal fit.
+                        
+                        **Analysis:**
+                        {final_analysis}
+                        
+                        **Recommendation:**
+                        As an alternative, I recommend the **CloudSoft Longline Zip-Up**. It features a dropped shoulder and extended hem that accommodates these specific fit needs.
+                        """
+                    )
+                    
+                    if st.button("👉 Shop Recommended Alternative"):
+                        st.session_state.view_mode = 'alternative'
+                        st.rerun()
+
+# =========================================================
+# VIEW B: THE RECOMMENDED ALTERNATIVE
+# =========================================================
+else:
+    with col1:
+        st.image(
+            "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+            caption="Product ID: LNG-ZIP-009 | Model wearing Longline Fit",
+            use_container_width=True
+        )
+
+    with col2:
+        st.success(f"✅ Perfect Match for: {', '.join(selected_challenges)}")
+        
+        st.title("CloudSoft Longline Zip-Up")
+        st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
+        
+        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer) and relaxed drop-shoulders. specifically engineered to provide coverage without riding up or pulling at the shoulders.")
+        
+        st.write("**Size**")
+        size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
+        
+        if st.button("Add to Bag"):
+            st.balloons()
+            st.toast("Added to Bag!", icon="🛍️")
+
+        st.write("")
+        st.divider()
+        
+        if st.button("← Back to Original Item"):
+            st.session_state.view_mode = 'original'
+            st.rerun()
