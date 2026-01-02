@@ -4,20 +4,26 @@ from fit_engine import FitNexusAgent
 
 st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wide")
 
-# --- SIDEBAR PROFILE INPUTS ---
+# --- STEP 1: INITIALIZE AGENT (Creates Log File) ---
+# We do this FIRST so the file exists when the sidebar tries to read it
+if "agent" not in st.session_state:
+    st.session_state.agent = FitNexusAgent()
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# --- STEP 2: SIDEBAR PROFILE INPUTS ---
 with st.sidebar:
-    # 1. Logo
     st.image("https://placehold.co/200x100/png?text=YOUR+LOGO", width=150)
     st.title("My Fit Profile")
     st.markdown("Customize your AI recommendations:")
     
-    # 2. Height
+    # 1. Height
     user_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"])
     
-    # 3. Usual Size
+    # 2. Usual Size
     user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"])
     
-    # 4. Fit Challenges (Includes Bust Options)
+    # 3. Fit Challenges
     user_challenges = st.multiselect(
         "Fit Challenges", 
         [
@@ -31,10 +37,10 @@ with st.sidebar:
         ]
     )
     
-    # 5. Fit Preference
+    # 4. Fit Preference
     user_pref = st.radio("I prefer clothes to fit:", ["Tight / Compression", "Standard / Regular", "Loose / Oversized"])
     
-    # Store all this in the profile dictionary
+    # Store profile
     user_profile = {
         "height": user_height,
         "size": user_size,
@@ -45,23 +51,24 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 FitNexus Thesis Project")
     
-    # --- ADMIN SECTION (With Refresh Fix) ---
+    # --- ADMIN SECTION ---
     st.markdown("### 📊 Admin Tools")
     
-    # Force Refresh Button (Updates the download data)
     if st.button("🔄 Refresh Logs"):
         st.rerun()
 
     log_file_path = "fitnexus_usage_log.csv"
     
-    # Only show download if file exists
+    # Now this check should pass because the Agent ran first!
     if os.path.exists(log_file_path):
         with open(log_file_path, "rb") as file:
             file_data = file.read()
         
-        # Show count of interactions
-        num_lines = len(file_data.decode('utf-8').split('\n')) - 2 
-        st.caption(f"Logged Interactions: {max(0, num_lines)}")
+        # Count lines (subtract 2 for header and empty last line)
+        line_count = len(file_data.decode('utf-8').split('\n'))
+        interaction_count = max(0, line_count - 2)
+        
+        st.caption(f"Logged Interactions: {interaction_count}")
         
         st.download_button(
             label="Download Usage Data (CSV)",
@@ -70,20 +77,14 @@ with st.sidebar:
             mime="text/csv"
         )
     else:
-        st.info("No logs yet. Ask a question to start logging.")
+        st.info("Log file initializing...")
 
-# --- MAIN CHAT INTERFACE ---
+# --- STEP 3: MAIN CHAT INTERFACE ---
 st.title("🛍️ Personal Fit Consultant")
 
-# Dynamic Welcome Message
 challenges_text = f" and have **{', '.join(user_challenges)}**" if user_challenges and "None" not in user_challenges else ""
 st.markdown(f"##### Hello! I see you usually wear a **{user_size}**{challenges_text}.")
 st.markdown("Ask me about any item, and I'll tell you how it fits *you*.")
-
-if "agent" not in st.session_state:
-    st.session_state.agent = FitNexusAgent()
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
