@@ -74,8 +74,11 @@ with st.sidebar:
     
     st.info(f"**Biometrics:** {height}, {body_type}\n\n**Issues:** {', '.join(selected_challenges)}")
     
-    if st.session_state.view_mode == 'alternative':
-        st.button("🔄 Reset to Original", on_click=switch_to_original)
+    # RESTORED RESET BUTTON
+    st.divider()
+    if st.button("🔄 Reset Demo"):
+        switch_to_original()
+        st.rerun()
 
 # ---------------------------------------------------------
 # 4. MAIN CONTENT AREA
@@ -87,17 +90,17 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Hero Image: Woman of Color in Grey Zip-Up Performance Fleece
+        # FIXED HERO IMAGE: Restored to original version
         st.image(
-            "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=800",
-            caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
+            "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
+            caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
             use_container_width=True
         )
 
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
-        st.write("A versatile layer with a full-length zipper closure. Features a high-collar design for wind protection and a tailored, athletic fit.")
+        st.write("A versatile layer for seasonal transitions. This textured fleece features a relaxed silhouette and soft, insulating fabric.")
         
         st.write("**Size**")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_orig")
@@ -109,19 +112,15 @@ if st.session_state.view_mode == 'original':
             
             if st.button("Run Analysis"):
                 st.warning(
-                    f"""
-                    **Fit Alert:** Based on your profile ({body_type}, Broad Shoulders), the standard zipper line on this jacket may pull across the chest.
-                    
-                    **Recommendation:** We recommend our Longline version which features an extended hem and dropped shoulders to accommodate your specific biometrics.
-                    """
+                    f"**Fit Alert:** Based on your profile ({body_type}, Broad Shoulders), the standard zipper line on this jacket may pull across the chest. We recommend our Longline version."
                 )
                 st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
 else:
     with col1:
-        # Verified Alternative Image: Woman of Color in Grey Zip-Up Hooded Fleece
+        # VERIFIED SECONDARY IMAGE: Woman in a grey ZIP-UP fleece
         st.image(
-            "https://images.pexels.com/photos/5935238/pexels-photo-5935238.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
             use_container_width=True
         )
@@ -130,7 +129,7 @@ else:
         st.success(f"✅ Perfect Match for: {', '.join(selected_challenges)}")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write("Designed with an extended hemline and a high-stretch full-length zipper. Specifically engineered to provide full coverage for long torsos without riding up.")
+        st.write("Designed with an extended hemline and a full-length zipper. Specifically engineered to provide coverage for long torsos without riding up.")
         
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"):
