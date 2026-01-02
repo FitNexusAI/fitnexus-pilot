@@ -130,19 +130,19 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Pexels Source (High Stability) ---
-    # Woman of color, front facing, grey hoodie
+    # --- IMAGE: Pexels Source (Woman of color, Grey Hoodie) ---
     st.image(
-        "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        caption="Product ID: SCUBA-HZ-001 | Oversized Fit shown on model",
+        "https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        caption="Product ID: HOODIE-001 | Woman shown in oversized fit",
         use_container_width=True
     )
 
 with col2:
-    st.title("Oversized Fleece Half-Zip")
+    # --- UPDATED TITLE & DESCRIPTION ---
+    st.title("Oversized Fleece Hoodie")
     st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
     
-    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable and soft against your skin. Designed with a roomy fit that falls below the hip.")
+    st.write("The ultimate comfort essential. This heavy-weight cotton-blend fleece hoodie features a cozy kangaroo pocket and a spacious hood. Designed with a roomy fit that falls below the hip.")
     
     st.write("**Size**")
     size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -175,14 +175,14 @@ with col2:
                     f"""
                     **Fit Alert:**
                     
-                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - Scuba Oversized Half-Zip Hoodie - 
+                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Oversized Fleece Hoodie** - 
                     may not be an ideal fit for your preferences.
                     
                     **Analysis:**
-                    While the model image shows a longer fit, our returns data indicates this item sits at the high hip. For a user with a **Long Torso**, this often results in the item feeling like a "cropped" fit rather than the intended oversized look.
+                    While the model image shows a longer fit, our returns data indicates this item sits at the high hip. For a user with a **Long Torso**, this often results in the hoodie feeling like a "cropped" fit rather than the intended oversized look.
                     
                     **Recommendation:**
-                    As an alternative, I recommend the **Swiftly Tech Long Sleeve Shirt 2.0** for reliable extra length.
+                    As an alternative, I recommend the **CloudSoft Longline Pullover** for reliable extra length.
                     """
                 )
             
