@@ -40,13 +40,25 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 2. STATE MANAGEMENT
+# 2. STATE MANAGEMENT & CALLBACKS (The Fix)
 # ---------------------------------------------------------
 
+# Initialize View Mode if not present
+if 'view_mode' not in st.session_state:
+    st.session_state.view_mode = 'original'
+
+# Initialize Selection History
 if 'previous_selection' not in st.session_state:
     st.session_state.previous_selection = ['None']
 
-if 'view_mode' not in st.session_state:
+# --- CALLBACK FUNCTIONS ---
+# These functions run immediately when the button is clicked, 
+# guaranteeing the switch happens before the page redraws.
+
+def switch_to_alternative():
+    st.session_state.view_mode = 'alternative'
+
+def switch_to_original():
     st.session_state.view_mode = 'original'
 
 # ---------------------------------------------------------
@@ -62,25 +74,16 @@ FIT_CHALLENGES = [
 ]
 
 def handle_fit_challenge_change():
-    """
-    Ensures 'None' is mutually exclusive from other options.
-    """
     current = st.session_state.fit_challenges_selector
     previous = st.session_state.get('previous_selection', ['None'])
 
-    # 1. If selection is empty, force default to "None"
     if not current:
         st.session_state.fit_challenges_selector = ["None"]
-        
-    # 2. If "None" was just selected, clear everything else
     elif "None" in current and "None" not in previous:
         st.session_state.fit_challenges_selector = ["None"]
-        
-    # 3. If a specific trait was selected, remove "None"
     elif "None" in current and len(current) > 1:
         st.session_state.fit_challenges_selector = [x for x in current if x != "None"]
 
-    # Update history tracking
     st.session_state.previous_selection = st.session_state.fit_challenges_selector
 
 # ---------------------------------------------------------
@@ -94,18 +97,14 @@ with st.sidebar:
     
     st.subheader("Simulated Shopper Context")
     
-    # --- Height ---
     height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
 
-    # --- Simplified Body Types ---
     body_type = st.selectbox(
         "Body Type", 
         ["Curvy", "Athletic / Muscular", "Straight / Slender", "Full Figured", "Petite Frame"],
         index=0
     )
     
-    # --- Fit Challenge Selector ---
-    st.write("Fit Challenges (Select multiple)")
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
@@ -115,7 +114,6 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     
-    # --- Blue Info Box (Dynamic) ---
     st.info(
         f"""
         **Active Biometrics:**
@@ -126,15 +124,13 @@ with st.sidebar:
         """
     )
     
-    # Reset button for demo purposes
+    # Demo Reset Button (Only shows if we are on the alternative page)
     if st.session_state.view_mode == 'alternative':
         st.divider()
-        if st.button("🔄 Reset Demo to Start"):
-            st.session_state.view_mode = 'original'
-            st.rerun()
+        st.button("🔄 Reset Demo", on_click=switch_to_original)
 
 # ---------------------------------------------------------
-# 5. MAIN CONTENT AREA (DYNAMIC)
+# 5. MAIN CONTENT AREA (DYNAMIC VIEW SWITCHING)
 # ---------------------------------------------------------
 
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
@@ -143,7 +139,7 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 # =========================================================
-# VIEW A: THE ORIGINAL PRODUCT
+# VIEW A: THE ORIGINAL PRODUCT (Textured Fleece Zip-Up)
 # =========================================================
 if st.session_state.view_mode == 'original':
     with col1:
@@ -167,7 +163,7 @@ if st.session_state.view_mode == 'original':
         st.write("") 
         st.write("") 
 
-        # --- INTELLIGENCE SECTION (Logic: Dynamic Warnings) ---
+        # --- DYNAMIC INTELLIGENCE SECTION ---
         with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
             st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
             
@@ -177,15 +173,14 @@ if st.session_state.view_mode == 'original':
                 if "None" in selected_challenges:
                      st.success(f"Fit Confirmation: Great Match! The relaxed fit aligns with your {body_type} body type.")
                 else:
-                    # --- DYNAMIC TEXT GENERATION ---
-                    # This block builds the sentences based on what is actually selected
+                    # Build dynamic analysis text
                     analysis_points = []
                     
                     if "Long Torso" in selected_challenges:
                         analysis_points.append("This jacket sits just below the waist (22\" length). For a **Long Torso**, this often feels like a 'cropped' fit rather than the intended length.")
                     
                     if "Broad Shoulders" in selected_challenges:
-                        analysis_points.append("The shoulder seams are structured and true-to-size. For **Broad Shoulders**, this may feel restrictive, especially when layering over other clothes.")
+                        analysis_points.append("The shoulder seams are structured. For **Broad Shoulders**, this may feel restrictive when layering.")
                         
                     if "Curvy Hips" in selected_challenges or "Wide Hips" in selected_challenges:
                         analysis_points.append("The hemline features a non-stretch binding. For **Curvy Hips**, this often causes the jacket to ride up when walking rather than sitting flat.")
@@ -193,11 +188,9 @@ if st.session_state.view_mode == 'original':
                     if "Full Bust" in selected_challenges:
                         analysis_points.append("The chest measurement is fitted. For a **Full Bust**, the zipper may pull across the chest line.")
 
-                    # Fallback for other tags
                     if not analysis_points:
                         analysis_points.append(f"The specific combination of {', '.join(selected_challenges)} suggests the standard cut of this jacket may not provide the optimal comfort you are looking for.")
 
-                    # Join the points into a single string
                     final_analysis = " ".join(analysis_points)
 
                     st.warning(
@@ -214,15 +207,16 @@ if st.session_state.view_mode == 'original':
                         """
                     )
                     
-                    if st.button("👉 Shop Recommended Alternative"):
-                        st.session_state.view_mode = 'alternative'
-                        st.rerun()
+                    # --- THE FUNCTIONAL BUTTON ---
+                    # Uses on_click callback for guaranteed switching
+                    st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
 # =========================================================
-# VIEW B: THE RECOMMENDED ALTERNATIVE
+# VIEW B: THE RECOMMENDED ALTERNATIVE (CloudSoft Longline)
 # =========================================================
 else:
     with col1:
+        # Different Image for the "Alternative"
         st.image(
             "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Fit",
@@ -247,6 +241,5 @@ else:
         st.write("")
         st.divider()
         
-        if st.button("← Back to Original Item"):
-            st.session_state.view_mode = 'original'
-            st.rerun()
+        # Back Button using callback
+        st.button("← Back to Original Item", on_click=switch_to_original)
