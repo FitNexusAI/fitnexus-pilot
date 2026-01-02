@@ -103,7 +103,7 @@ with st.sidebar:
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
-        default=["None"],  # <--- Defaults to None on refresh
+        default=["None"],
         key="fit_challenges_selector",
         on_change=handle_fit_challenge_change,
         label_visibility="collapsed"
@@ -130,19 +130,21 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Specific Verified ID (Woman of Color, Grey Hoodie) ---
+    # --- IMAGE (Woman of Color, Grey Button-Up Fleece) ---
     st.image(
         "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-        caption="Product ID: HOODIE-001 | Woman shown in oversized fit",
+        # Updated Caption to reflect the new item type
+        caption="Product ID: FLCE-JKT-001 | Woman shown in relaxed fit",
         use_container_width=True
     )
 
 with col2:
-    # --- UPDATED TITLE & DESCRIPTION ---
-    st.title("Oversized Fleece Hoodie")
-    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
+    # --- UPDATED TITLE & DESCRIPTION (Reflecting the image) ---
+    st.title("Textured Fleece Button-Up Jacket")
+    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
     
-    st.write("The ultimate comfort essential. This heavy-weight cotton-blend fleece hoodie features a cozy kangaroo pocket and a spacious hood. Designed with a roomy fit that falls below the hip.")
+    # New description based on the visual
+    st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a classic button-front closure, a relaxed silhouette, and soft, insulating fabric. Perfect for layering over activewear or casual tops.")
     
     st.write("**Size**")
     size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -167,22 +169,23 @@ with col2:
                     
                     Based on your profile ({height}, {body_type}), this item is a **Great Match**. 
                     
-                    The oversized fit is intentional and aligns with your body type. No specific fit challenges were detected that would impact sizing.
+                    The relaxed fit is intentional and aligns with your body type. No specific fit challenges were detected that would impact sizing.
                     """
                 )
             else:
+                # Updated Warning Text to match new product name
                 st.warning(
                     f"""
                     **Fit Alert:**
                     
-                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Oversized Fleece Hoodie** - 
+                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Textured Fleece Button-Up Jacket** - 
                     may not be an ideal fit for your preferences.
                     
                     **Analysis:**
-                    While the model image shows a longer fit, our returns data indicates this item sits at the high hip. For a user with a **Long Torso**, this often results in the hoodie feeling like a "cropped" fit rather than the intended oversized look.
+                    While the model image shows a relaxed fit, our returns data indicates this item sits just below the waist. For a user with a **Long Torso**, this often results in the jacket feeling like a "cropped" fit rather than the intended length.
                     
                     **Recommendation:**
-                    As an alternative, I recommend the **CloudSoft Longline Pullover** for reliable extra length.
+                    As an alternative, I recommend the **CloudSoft Longline Cardigan** for reliable extra length.
                     """
                 )
             
