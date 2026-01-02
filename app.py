@@ -14,14 +14,15 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (New Image) ---
+# --- UPDATED DATABASE (Corrected Image) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Cotton Hoodie",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Naturally breathable soft cotton fabric with a cozy hood and kangaroo pocket.",
-        # NEW IMAGE: Portrait of a woman of color in a grey hoodie (Pexels verified)
-        "image": "https://images.pexels.com/photos/3768169/pexels-photo-3768169.jpeg?auto=compress&cs=tinysrgb&w=800",
+        # NEW IMAGE: Woman of Color in Grey/Neutral Hoodie (Pexels ID: 1191531)
+        # Alternate IDs if needed: 6995901, 7200792
+        "image": "https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg?auto=compress&cs=tinysrgb&w=800",
         "id": "SCUBA-CT-001"
     },
     "define_jacket": {
