@@ -14,13 +14,13 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (AMAZON CDN IMAGES - HIGH RELIABILITY) ---
+# --- UPDATED DATABASE (High-Availability Amazon Images) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Fleece Half-Zip",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # Amazon CDN: Beige Half-Zip Fleece (Guaranteed to load)
+        # Amazon CDN: Beige Half-Zip Fleece (Specific Match)
         "image": "https://m.media-amazon.com/images/I/71zNw+jI9AL._AC_SY879_.jpg",
         "id": "SCUBA-HZ-001"
     },
@@ -28,7 +28,7 @@ PRODUCT_DB = {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # Amazon CDN: Black Athletic Jacket (Guaranteed to load)
+        # Amazon CDN: Black Athletic Jacket (Specific Match)
         "image": "https://m.media-amazon.com/images/I/61N+V2p1o+L._AC_UY1000_.jpg",
         "id": "DEFINE-JKT-009"
     }
@@ -154,7 +154,6 @@ with st.sidebar:
 
 # --- MODE 1: WHITE LABEL STOREFRONT ---
 if mode == "🛍️ Retail Storefront (Demo)":
-    # Use standard string format to avoid syntax errors
     st.markdown("### 🛒 Premium Activewear Co. (Integration Demo)")
     st.markdown("---")
     
@@ -177,9 +176,9 @@ if mode == "🛍️ Retail Storefront (Demo)":
         
         # THE WIDGET
         with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
-            # FIXED LINE BELOW - Simplified to prevent syntax errors
-            challenges_str = ", ".join(sim_challenges) if sim_challenges else "None"
-            st.caption(f"Analyzing for: **{sim_height}** | **{challenges_str}**")
+            # SAFE CAPTION LOGIC (Prevents Syntax Errors)
+            challenges_text = ", ".join(sim_challenges) if sim_challenges else "None"
+            st.caption(f"Analyzing for: **{sim_height}** | **{challenges_text}**")
             
             q = st.text_input("Ask a question:", value="Will this fit my body type?")
             
