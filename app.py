@@ -8,33 +8,11 @@ st.set_page_config(layout="wide", page_title="FitNexus Enterprise Demo")
 st.markdown(
     """
     <style>
-    /* Change Sidebar Background Color */
-    [data-testid="stSidebar"] {
-        background-color: #f8f9fa;
-    }
-
-    /* Make the Multiselect Chips Red */
-    span[data-baseweb="tag"] {
-        background-color: #F74845 !important;
-        color: white !important;
-    }
-    
-    /* Style Primary Buttons Red */
-    div.stButton > button:first-child {
-        background-color: #F74845;
-        color: white;
-        border: none;
-        width: 100%;
-    }
-    div.stButton > button:hover {
-        background-color: #D3322F;
-        color: white;
-    }
-
-    h1, h2, h3 {
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-    
+    [data-testid="stSidebar"] { background-color: #f8f9fa; }
+    span[data-baseweb="tag"] { background-color: #F74845 !important; color: white !important; }
+    div.stButton > button:first-child { background-color: #F74845; color: white; border: none; width: 100%; }
+    div.stButton > button:hover { background-color: #D3322F; color: white; }
+    h1, h2, h3 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -51,7 +29,6 @@ if 'view_mode' not in st.session_state:
 if 'fit_challenges' not in st.session_state:
     st.session_state.fit_challenges = ["None"]
 
-# Full list of challenges restored
 FIT_CHALLENGE_OPTIONS = [
     "None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders",
     "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", 
@@ -60,23 +37,24 @@ FIT_CHALLENGE_OPTIONS = [
 ]
 
 def handle_challenge_logic():
-    current = st.session_state.challenge_input
+    # Retrieve what was just selected in the multiselect
+    current_selection = st.session_state.challenge_input
     
-    # If "None" is selected along with others, prioritize the NEWEST selection
-    if len(current) > 1:
-        if current[-1] == "None":
-            # User just clicked "None", clear everything else
+    # Logic to enforce mutual exclusivity
+    if len(current_selection) > 1:
+        # If "None" was the absolute last thing the user clicked, clear everything else
+        if current_selection[-1] == "None":
             st.session_state.fit_challenges = ["None"]
-        elif "None" in current:
-            # User clicked a specific challenge, remove "None"
-            st.session_state.fit_challenges = [x for x in current if x != "None"]
+        # If user clicked a specific challenge and "None" was already there, remove "None"
+        elif "None" in current_selection:
+            st.session_state.fit_challenges = [x for x in current_selection if x != "None"]
         else:
-            st.session_state.fit_challenges = current
-    elif not current:
-        # Fallback to "None" if empty
+            st.session_state.fit_challenges = current_selection
+    elif not current_selection:
+        # If user clears everything, default back to "None"
         st.session_state.fit_challenges = ["None"]
     else:
-        st.session_state.fit_challenges = current
+        st.session_state.fit_challenges = current_selection
 
 def switch_to_alternative():
     st.session_state.view_mode = 'alternative'
@@ -97,7 +75,7 @@ with st.sidebar:
     height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
     body_type = st.selectbox("Body Type", ["Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0)
     
-    # Restored Multiselect with logic
+    # Mutually Exclusive Multiselect
     st.multiselect(
         "Fit Challenges",
         options=FIT_CHALLENGE_OPTIONS,
@@ -124,7 +102,7 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Hero Image
+        # ORIGINAL HERO IMAGE: Woman in Grey Zip-Up Jacket
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
@@ -135,6 +113,7 @@ if st.session_state.view_mode == 'original':
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
+        # Data-driven Confidence Score
         if "None" in active_challenges:
             st.success("🎯 FitNexus: 92% Match (High Confidence)")
         
@@ -156,7 +135,7 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # Verified Secondary Image: Zip-Up Fleece
+        # VERIFIED SECONDARY IMAGE: Woman in Grey Zip-Up Fleece
         st.image(
             "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
