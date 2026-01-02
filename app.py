@@ -1,34 +1,34 @@
 import streamlit as st
 
 # ---------------------------------------------------------
-# 1. CUSTOM CSS TO FIX THE "BROKEN" LOOK
+# 1. PAGE CONFIG & CUSTOM CSS
 # ---------------------------------------------------------
-# This block injects CSS to style the default Streamlit widgets 
-# to look more like your original red/white design.
+st.set_page_config(layout="wide", page_title="FitNexus Enterprise Demo")
+
 st.markdown(
     """
     <style>
-    /* 1. Style the MultiSelect Tags (Chips) to be Red */
+    /* 1. Make the Multiselect Chips Red */
     span[data-baseweb="tag"] {
-        background-color: #E65149 !important; /* The red from your screenshot */
+        background-color: #F74845 !important;
         color: white !important;
-        border-radius: 6px;
     }
     
-    /* 2. Hide the 'x' on the tag if it conflicts with text, 
-       or style it white so it's visible on red */
-    span[data-baseweb="tag"] svg {
-        fill: white !important;
+    /* 2. Style the "Shop Recommended Alternative" / Primary Buttons Red */
+    div.stButton > button:first-child {
+        background-color: #F74845;
+        color: white;
+        border: none;
+        width: 100%;
+    }
+    div.stButton > button:hover {
+        background-color: #D3322F;
+        color: white;
     }
 
-    /* 3. Adjust the main container for a cleaner look */
-    .stMultiSelect {
-        max-width: 600px;
-    }
-    
-    /* 4. Optional: Clean up the JSON output font */
-    .stJson {
-        font-family: 'Courier New', monospace;
+    /* 3. Custom font tweaks for headers */
+    h1, h2, h3 {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
     </style>
     """,
@@ -36,68 +36,121 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 2. DEFINE OPTIONS
+# 2. FIT LOGIC HANDLER (The "None" Logic)
 # ---------------------------------------------------------
 FIT_CHALLENGES = [
     "None",
-    # Torso & Shoulders
     "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders",
-    "Long Arms", "Short Arms",
-    # Bust
-    "Full Bust", "Small Bust",
-    # Stomach
-    "Round Stomach", "Soft Midsection",
-    # Hips
-    "Curvy Hips", "Wide Hips", "Narrow Hips", "High Hip Shelf",
-    # Legs
-    "Athletic Thighs", "Long Legs", "Short Legs", "Muscular Calves"
+    "Long Arms", "Short Arms", "Full Bust", "Small Bust",
+    "Round Stomach", "Soft Midsection", "Curvy Hips", "Wide Hips", 
+    "Narrow Hips", "High Hip Shelf", "Athletic Thighs", "Long Legs", 
+    "Short Legs", "Muscular Calves"
 ]
 
-# ---------------------------------------------------------
-# 3. LOGIC HANDLER
-# ---------------------------------------------------------
 def handle_fit_challenge_change():
     current = st.session_state.fit_challenges_selector
     previous = st.session_state.get('previous_selection', ['None'])
 
-    # 1. User deselected everything -> Default to None
     if not current:
         st.session_state.fit_challenges_selector = ["None"]
-    
-    # 2. User clicked "None" -> Clear everything else
     elif "None" in current and "None" not in previous:
         st.session_state.fit_challenges_selector = ["None"]
-    
-    # 3. User clicked a specific trait -> Remove "None"
     elif "None" in current and len(current) > 1:
         st.session_state.fit_challenges_selector = [x for x in current if x != "None"]
 
-    # Update history
     st.session_state.previous_selection = st.session_state.fit_challenges_selector
 
-# Initialize history if missing
 if 'previous_selection' not in st.session_state:
     st.session_state.previous_selection = ['None']
 
 # ---------------------------------------------------------
-# 4. RENDER UI
+# 3. SIDEBAR (The Left Panel)
 # ---------------------------------------------------------
-st.title("Fit Profile Setup")
-st.write("Select any areas where you typically have fit challenges:")
+with st.sidebar:
+    st.header("FitNexus Engine")
+    
+    st.write("**Select Demo Mode:**")
+    mode = st.radio("Mode", ["Retail Storefront (Demo)", "API Developer View"], label_visibility="collapsed")
+    
+    st.divider()
+    
+    st.subheader("Simulated Shopper Context")
+    
+    # Height Dropdown
+    st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
+    
+    # The Fit Challenge Selector (With Logic)
+    st.write("Fit Challenges (Select multiple)")
+    selected_challenges = st.multiselect(
+        label="Fit Challenges",
+        options=FIT_CHALLENGES,
+        default=["Long Torso", "Broad Shoulders"], # Default to match your screenshot
+        key="fit_challenges_selector",
+        on_change=handle_fit_challenge_change,
+        label_visibility="collapsed"
+    )
+    
+    # The Blue Info Box
+    st.info(
+        f"""
+        **Active Biometrics:** Height: 5'3 - 5'7
+        
+        **Issues:** {", ".join(selected_challenges)}
+        """
+    )
 
-# The Widget
-st.multiselect(
-    label="Fit Challenges",
-    options=FIT_CHALLENGES,
-    default=["None"],
-    key="fit_challenges_selector",
-    on_change=handle_fit_challenge_change,
-    placeholder="Choose your fit challenges..."
-)
+# ---------------------------------------------------------
+# 4. MAIN CONTENT (The Retail View)
+# ---------------------------------------------------------
 
-# ---------------------------------------------------------
-# 5. BACKEND SUMMARY
-# ---------------------------------------------------------
+st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
 st.divider()
-st.subheader("Summary for Backend")
-st.json({"user_fit_profile": st.session_state.fit_challenges_selector})
+
+# Create two columns for the Product View
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    # Placeholder for the Product Image
+    # You can replace this URL with your actual image path
+    st.image("https://placehold.co/400x400/png?text=Oversized+Fleece", use_column_width=True)
+    st.caption("Product ID: SCUBA-HZ-001")
+
+with col2:
+    st.title("Oversized Fleece Half-Zip")
+    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
+    
+    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.")
+    
+    st.write("**Size**")
+    size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
+    
+    st.button("Add to Bag")
+
+    # Spacer
+    st.write("") 
+    st.write("") 
+
+    # ---------------------------------------------------------
+    # 5. INTELLIGENCE SECTION (The Expandable Box)
+    # ---------------------------------------------------------
+    with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
+        st.caption(f"Analyzing for: 5'3 - 5'7 | {', '.join(selected_challenges)}")
+        
+        question = st.text_input("Ask a question:", "Will this fit my body type?")
+        
+        if st.button("Run Analysis"):
+            # The Warning Box (Fit Alert)
+            st.warning(
+                """
+                **Fit Alert:**
+                
+                Based on the user profile provided, the target product - Scuba Oversized Half-Zip Hoodie - 
+                may not be an ideal fit. This hoodie is designed to be short in the body, so it might not 
+                accommodate a user with a **Long Torso** very well.
+                
+                As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0. Its slim fit design 
+                should work well with your body type.
+                """
+            )
+            
+            st.button("👉 Shop Recommended Alternative")
