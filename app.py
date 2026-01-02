@@ -31,7 +31,7 @@ st.markdown(
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
     
-    /* 4. Hide the "Deploy" button and main menu for a cleaner demo look */
+    /* 4. Hide standard Streamlit chrome for a clean demo */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -93,7 +93,7 @@ with st.sidebar:
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
-        default=["Long Torso", "Broad Shoulders"], 
+        default=["None"],  # <--- FIXED: Now defaults to None on refresh
         key="fit_challenges_selector",
         on_change=handle_fit_challenge_change,
         label_visibility="collapsed"
@@ -120,10 +120,10 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Reliable URL of Woman in Grey Hoodie ---
+    # --- STABLE IMAGE SOURCE (Pixabay) ---
     st.image(
-        "https://images.unsplash.com/photo-1556906781-9a412961d289?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        caption="Product ID: SCUBA-HZ-001 | Model is 5'9 wearing size M/L",
+        "https://cdn.pixabay.com/photo/2017/08/06/12/06/people-2591874_1280.jpg",
+        caption="Product ID: SCUBA-HZ-001 | Woman shown in oversized fit",
         use_container_width=True
     )
 
@@ -148,19 +148,31 @@ with col2:
         question = st.text_input("Ask a question:", "Will this fit my body type?")
         
         if st.button("Run Analysis"):
-            st.warning(
-                f"""
-                **Fit Alert:**
-                
-                Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - Scuba Oversized Half-Zip Hoodie - 
-                may not be an ideal fit for your preferences.
-                
-                **Analysis:**
-                While the model image shows a longer fit, our returns data indicates this item sits at the high hip. For a user with a **Long Torso**, this often results in the item feeling like a "cropped" fit rather than the intended oversized look.
-                
-                **Recommendation:**
-                As an alternative, I recommend the **Swiftly Tech Long Sleeve Shirt 2.0** for reliable extra length.
-                """
-            )
+            # Check if user actually has challenges selected to show a relevant alert
+            if "None" in selected_challenges:
+                 st.success(
+                    f"""
+                    **Fit Confirmation:**
+                    
+                    Based on your profile ({height}, {body_type}), this item is a **Great Match**. 
+                    
+                    The oversized fit is intentional and aligns with your body type. No specific fit challenges were detected that would impact sizing.
+                    """
+                )
+            else:
+                st.warning(
+                    f"""
+                    **Fit Alert:**
+                    
+                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - Scuba Oversized Half-Zip Hoodie - 
+                    may not be an ideal fit for your preferences.
+                    
+                    **Analysis:**
+                    While the model image shows a longer fit, our returns data indicates this item sits at the high hip. For a user with a **Long Torso**, this often results in the item feeling like a "cropped" fit rather than the intended oversized look.
+                    
+                    **Recommendation:**
+                    As an alternative, I recommend the **Swiftly Tech Long Sleeve Shirt 2.0** for reliable extra length.
+                    """
+                )
             
-            st.button("👉 Shop Recommended Alternative")
+                st.button("👉 Shop Recommended Alternative")
