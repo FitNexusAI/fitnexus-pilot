@@ -1,4 +1,4 @@
-# FitNexus: AI Personal Fit Consultant (Thesis Pilot)
+# FitNexusAI: AI Personal Fit Consultant (Thesis Pilot)
 
 ### 🎓 Project Overview
 FitNexus is a "Context-Aware" Retail AI Agent designed to reduce e-commerce return rates. Unlike standard chatbots that simply search for products, FitNexus analyzes a user's **Fit Profile** (Height, Size, Shape, Challenges) and compares it against technical garment data to provide personalized sizing advice.
