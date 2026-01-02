@@ -93,7 +93,7 @@ with st.sidebar:
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
-        default=["None"],  # <--- FIXED: Now defaults to None on refresh
+        default=["None"], 
         key="fit_challenges_selector",
         on_change=handle_fit_challenge_change,
         label_visibility="collapsed"
@@ -120,10 +120,10 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- STABLE IMAGE SOURCE (Pixabay) ---
+    # --- UPDATED IMAGE: Front-facing woman of color in grey hoodie ---
     st.image(
-        "https://cdn.pixabay.com/photo/2017/08/06/12/06/people-2591874_1280.jpg",
-        caption="Product ID: SCUBA-HZ-001 | Woman shown in oversized fit",
+        "https://images.unsplash.com/photo-1588173811931-d8d45620b557?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        caption="Product ID: SCUBA-HZ-001 | Model shown in oversized fit",
         use_container_width=True
     )
 
