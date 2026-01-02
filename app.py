@@ -14,9 +14,9 @@ if not os.path.exists(log_file_path):
         writer.writerow(["Timestamp", "Height", "Size", "Preference", "Challenges", "User_Query", "Product_Recommended", "AI_Advice"])
 
 # --- STEP 2: INITIALIZE AGENT ---
-if "agent" not in st.session_state:
-    # We force a fresh reload of the agent to ensure it has the logging logic
-    st.session_state.agent = FitNexusAgent()
+# We changed the name to 'agent_v2' to force a hard reset of the brain!
+if "agent_v2" not in st.session_state:
+    st.session_state.agent_v2 = FitNexusAgent()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
