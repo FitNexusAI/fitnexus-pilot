@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from fit_engine import FitNexusAgent
 
 st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wide")
@@ -15,10 +16,18 @@ with st.sidebar:
     # 2. Usual Size
     user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"])
     
-    # 3. NEW: Fit Challenges (Multi-Select)
+    # 3. Fit Challenges (Updated with Bust Options)
     user_challenges = st.multiselect(
         "Fit Challenges", 
-        ["None", "Broad Shoulders", "Narrow Shoulders", "Long Torso", "Short Torso", "Wide Hips", "Narrow Hips", "Long Arms", "Thick Thighs", "Sensitive Skin"]
+        [
+            "None", 
+            "Large Bust", "Small Bust",       # <--- NEW ADDITIONS
+            "Broad Shoulders", "Narrow Shoulders", 
+            "Long Torso", "Short Torso", 
+            "Wide Hips", "Narrow Hips", 
+            "Long Arms", "Thick Thighs", 
+            "Sensitive Skin"
+        ]
     )
     
     # 4. Fit Preference
@@ -33,8 +42,18 @@ with st.sidebar:
     }
     
     st.markdown("---")
-    st.info("FitNexus checks garment technical specs against your unique fit challenges.")
     st.caption("© 2026 FitNexus Thesis Project")
+    
+    # --- ADMIN SECTION: DOWNLOAD LOGS ---
+    st.markdown("### 📊 Admin Tools")
+    if os.path.exists("fitnexus_usage_log.csv"):
+        with open("fitnexus_usage_log.csv", "rb") as file:
+            st.download_button(
+                label="Download Usage Data (CSV)",
+                data=file,
+                file_name="fitnexus_pilot_data.csv",
+                mime="text/csv"
+            )
 
 # --- MAIN CHAT INTERFACE ---
 st.title("🛍️ Personal Fit Consultant")
@@ -59,7 +78,7 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.chat_message("assistant"):
-        with st.spinner("Analyzing your profile against product specs..."):
+        with st.spinner("Analyzing your profile & logging request..."):
             result = st.session_state.agent.think(prompt, user_profile)
             
             if result["image"]:
