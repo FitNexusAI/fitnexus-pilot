@@ -145,3 +145,50 @@ st.title("🛍️ Personal Fit Consultant")
 catalog_size = len(st.session_state.agent_final.catalog)
 if catalog_size == 0:
     st.error("⚠️ ERROR: Product Catalog is Empty! Check 'fashion_products_mock.csv' on GitHub.")
+    # --- DEBUG: CHECK CATALOG ---
+# This warns you if the data didn't load (check if you see this error!)
+if st.session_state.agent_final.catalog.empty:
+    st.error("⚠️ ERROR: Catalog is empty! Check 'fashion_products_mock.csv' on GitHub.")
+
+# --- DISPLAY CHAT HISTORY ---
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).markdown(msg["content"])
+
+# --- THE MISSING CHAT INPUT ---
+if prompt := st.chat_input("Ex: 'What do you suggest I purchase?'"):
+    # 1. Show User Message
+    st.chat_message("user").markdown(prompt)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # 2. Generate AI Answer
+    with st.chat_message("assistant"):
+        with st.spinner("Analyzing..."):
+            result = st.session_state.agent_final.think(prompt, user_profile)
+            
+            if result["image"]:
+                c1, c2 = st.columns([2, 1])
+                c1.markdown(result["text"])
+                c2.image(result["image"], caption=result["product_name"])
+            else:
+                st.markdown(result["text"])
+            
+            # 3. Silent Logging
+            try:
+                log_file = "fitnexus_usage_log.csv"
+                if not os.path.exists(log_file):
+                    with open(log_file, 'w', newline='') as f:
+                        csv.writer(f).writerow(["Time", "Height", "Size", "Query", "Advice"])
+                
+                with open(log_file, 'a', newline='') as f:
+                    csv.writer(f).writerow([
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                        user_height, 
+                        user_size, 
+                        prompt, 
+                        result["text"][:100]
+                    ])
+            except Exception as e:
+                print(f"Log Error: {e}")
+
+    # 4. Save Assistant Message
+    st.session_state.messages.append({"role": "assistant", "content": result["text"]})
