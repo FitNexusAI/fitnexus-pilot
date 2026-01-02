@@ -40,20 +40,14 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 2. STATE MANAGEMENT & CALLBACKS (The Fix)
+# 2. STATE MANAGEMENT & CALLBACKS
 # ---------------------------------------------------------
 
-# Initialize View Mode if not present
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
-# Initialize Selection History
 if 'previous_selection' not in st.session_state:
     st.session_state.previous_selection = ['None']
-
-# --- CALLBACK FUNCTIONS ---
-# These functions run immediately when the button is clicked, 
-# guaranteeing the switch happens before the page redraws.
 
 def switch_to_alternative():
     st.session_state.view_mode = 'alternative'
@@ -124,7 +118,6 @@ with st.sidebar:
         """
     )
     
-    # Demo Reset Button (Only shows if we are on the alternative page)
     if st.session_state.view_mode == 'alternative':
         st.divider()
         st.button("🔄 Reset Demo", on_click=switch_to_original)
@@ -207,8 +200,6 @@ if st.session_state.view_mode == 'original':
                         """
                     )
                     
-                    # --- THE FUNCTIONAL BUTTON ---
-                    # Uses on_click callback for guaranteed switching
                     st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
 # =========================================================
@@ -216,10 +207,10 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # Different Image for the "Alternative"
+        # UPDATED IMAGE: Same model, but showing the longer zip-up fit clearly.
         st.image(
-            "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-            caption="Product ID: LNG-ZIP-009 | Model wearing Longline Fit",
+            "https://images.pexels.com/photos/7242945/pexels-photo-7242945.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+            caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
 
@@ -229,7 +220,7 @@ else:
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
         
-        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer) and relaxed drop-shoulders. specifically engineered to provide coverage without riding up or pulling at the shoulders.")
+        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer than standard) and a full zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
         
         st.write("**Size**")
         size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -241,5 +232,4 @@ else:
         st.write("")
         st.divider()
         
-        # Back Button using callback
         st.button("← Back to Original Item", on_click=switch_to_original)
