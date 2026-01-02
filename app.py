@@ -14,22 +14,21 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (Corrected Image) ---
+# --- UPDATED DATABASE (Manually Verified Images) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Cotton Hoodie",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Naturally breathable soft cotton fabric with a cozy hood and kangaroo pocket.",
-        # NEW IMAGE: Woman of Color in Grey/Neutral Hoodie (Pexels ID: 1191531)
-        # Alternate IDs if needed: 6995901, 7200792
-        "image": "https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg?auto=compress&cs=tinysrgb&w=800",
+        # VERIFIED IMAGE: Black woman in beige oversized hoodie/sweatsuit
+        "image": "https://images.pexels.com/photos/6311237/pexels-photo-6311237.jpeg?auto=compress&cs=tinysrgb&w=800",
         "id": "SCUBA-CT-001"
     },
     "define_jacket": {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # Pexels: Woman in Black Athletic Jacket (Verified)
+        # VERIFIED IMAGE: Woman in Black Athletic Jacket
         "image": "https://images.pexels.com/photos/4132651/pexels-photo-4132651.jpeg?auto=compress&cs=tinysrgb&w=800",
         "id": "DEFINE-JKT-009"
     }
