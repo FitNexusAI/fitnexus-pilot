@@ -30,7 +30,7 @@ class FitNexusEngine:
     def analyze_fit(self, query, user_profile, forced_product_context=None):
         if self.catalog.empty: return {"error": "Catalog disconnected"}
         
-        # 1. SEARCH LOGIC
+        # 1. IDENTIFY TARGET PRODUCT
         search_query = query
         if forced_product_context:
             search_query += f" {forced_product_context}"
@@ -47,14 +47,46 @@ class FitNexusEngine:
         
         if scored:
             target_product = scored[0][1]
-            alternatives = [item[1] for item in scored[1:4]]
-            if not alternatives: 
-                alternatives = [r for _, r in self.catalog.iterrows() if r['name'] != target_product['name']][:3]
         else:
             target_product = self.catalog.iloc[0]
-            alternatives = [self.catalog.iloc[i] for i in range(1, 4)]
 
-        # 2. CONSTRUCT CONTEXT
+        # 2. SMART ALTERNATIVES LOGIC (Category Filtering)
+        # Determine the category of the Target Product
+        target_name = target_product['name'].lower()
+        target_desc = str(target_product.get('description', '')).lower()
+        
+        # Define "Warm Layers" keywords
+        layer_keywords = ["hoodie", "jacket", "pullover", "sweatshirt", "fleece", "coat", "zip"]
+        
+        is_layer = any(k in target_name or k in target_desc for k in layer_keywords)
+        
+        alternatives = []
+        
+        # Scan catalog for relevant alternatives
+        for _, row in self.catalog.iterrows():
+            # Skip the target product itself
+            if row['name'] == target_product['name']:
+                continue
+                
+            item_name = row['name'].lower()
+            item_desc = str(row.get('description', '')).lower()
+            
+            # If Target is a Layer, ONLY allow other Layers
+            if is_layer:
+                if any(k in item_name or k in item_desc for k in layer_keywords):
+                    alternatives.append(row)
+            # Otherwise (if it's not a layer), allow standard logic
+            else:
+                alternatives.append(row)
+        
+        # If we found no specific matches, fall back to just taking the next items (Safe Mode)
+        if not alternatives:
+             alternatives = [item[1] for item in scored[1:4]] if len(scored) > 1 else []
+
+        # Limit to top 3
+        alternatives = alternatives[:3]
+
+        # 3. CONSTRUCT CONTEXT
         alt_text = "\n".join([f"- {p['name']}: {p['fit_type']} fit." for p in alternatives])
         
         context_block = (
@@ -63,16 +95,17 @@ class FitNexusEngine:
             f"Fit Type: {target_product['fit_type']}\n"
             f"Tech Specs: {target_product.get('fit_advice', '')}\n\n"
             f"AVAILABLE ALTERNATIVES (Recommend ONE of these ONLY if Target is bad):\n"
+            f"NOTE: These are selected because they are the same category (e.g. Warm Layers):\n"
             f"{alt_text}"
         )
         
-        # 3. AI PROMPT (Updated to ensure keyword usage)
+        # 4. AI PROMPT
         system_prompt = (
             "You are the FitNexus API. Your goal is to Save the Sale. "
             "1. Analyze the 'TARGET PRODUCT' against the User Profile. "
-            "2. If the Target Product is a POOR fit (e.g., cropped item for long torso), "
-            "you MUST recommend a specific item from the 'AVAILABLE ALTERNATIVES' list. "
-            "Use the phrase 'As an alternative' or 'I recommend instead' to signal the switch. "
+            "2. If the Target Product is a POOR fit, you MUST recommend a specific item from the 'AVAILABLE ALTERNATIVES' list. "
+            "   - CRITICAL: Use the phrase 'As an alternative' or 'I recommend instead'. "
+            "   - Explain WHY the alternative works better for their body type (e.g. 'This jacket is longer in the torso...'). "
             "3. If the Target Product is a GOOD fit, confirm it enthusiastically. "
             "Keep the output decisive."
         )
@@ -146,8 +179,6 @@ if mode == "🛍️ Retail Storefront (Demo)":
                 res = st.session_state.last_result
                 text_lower = res['analysis'].lower()
                 
-                # --- UPDATED PIVOT LOGIC (More Sensitive) ---
-                # Now checks for "alternative" OR "instead" OR the combination of "not a good fit" + "recommend"
                 is_pivot = (
                     "alternative" in text_lower or 
                     "instead" in text_lower or 
