@@ -1,61 +1,103 @@
 import streamlit as st
 
-# Page Configuration
-st.set_page_config(layout="wide", page_title="Premium Activewear Co.")
-
-# --- SIDEBAR CONFIGURATION ---
-with st.sidebar:
-    st.header("Fit Profile")
+# ---------------------------------------------------------
+# 1. DEFINE THE EXTENSIVE LIST OF OPTIONS
+# ---------------------------------------------------------
+FIT_CHALLENGES = [
+    "None",
     
-    # Separate Dropdown for Height
-    height_options = ["< 5'0\"", "5'0\" - 5'3\"", "5'4\" - 5'7\"", "5'8\" - 5'11\"", "6'0\" - 6'3\"", "> 6'3\""]
-    selected_height = st.selectbox("Height", height_options, index=3)
+    # Torso & Shoulders
+    "Long Torso",
+    "Short Torso",
+    "Broad Shoulders",
+    "Narrow Shoulders",
+    "Long Arms",
+    "Short Arms",
 
-    # Separate Dropdown for Fit Challenges
-    # Using multiselect allows for multiple challenges, but standard selectbox works if only one is needed.
-    # Based on "dropdowns", a multiselect is often preferred for "challenges".
-    fit_challenges_options = ["None", "Broad Shoulders", "Long Torso", "Short Torso", "Athletic Thighs", "Petite Frame", "Curvy Hips"]
-    selected_challenges = st.multiselect("Fit Challenges", fit_challenges_options, default=["None"])
+    # Bust
+    "Full Bust",
+    "Small Bust",
 
-# --- MAIN CONTENT ---
+    # Stomach
+    "Round Stomach",
+    "Soft Midsection",
 
-# Header
-st.markdown("### 🛒 Premium Activewear Co. (Integration Demo)")
-st.markdown("---")
+    # Hips
+    "Curvy Hips",
+    "Wide Hips",
+    "Narrow Hips",
+    "High Hip Shelf",
 
-# Layout: Two columns for Product Image and Product Details
-col1, col2 = st.columns([1, 1])
+    # Legs
+    "Athletic Thighs",
+    "Long Legs",
+    "Short Legs",
+    "Muscular Calves"
+]
 
-with col1:
-    # Placeholder for the product image
-    # Replace 'path/to/image.png' with your actual image file or URL
-    st.image("https://via.placeholder.com/500x400?text=Oversized+Cotton+Hoodie", use_column_width=True)
-    st.caption("Product ID: SCUBA-CT-001")
-
-with col2:
-    st.title("Oversized Cotton Hoodie")
-    st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$118.00**")
+# ---------------------------------------------------------
+# 2. DEFINE THE LOGIC (CALLBACK HANDLER)
+# ---------------------------------------------------------
+def handle_fit_challenge_change():
+    """
+    Manages the mutual exclusivity logic between 'None' 
+    and specific fit attributes.
+    """
+    # Get the current list selected by the user
+    current_selection = st.session_state.fit_challenges_selector
     
-    st.write("""
-    The ultimate post-workout layer. Naturally breathable soft cotton fabric with a cozy hood and kangaroo pocket.
-    """)
-    
-    st.markdown("**Size:**")
-    size_selection = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, label_visibility="collapsed")
-    
-    st.button("Add to Bag", type="primary")
+    # Get what was selected previously (to detect changes)
+    previous_selection = st.session_state.get('previous_selection', ['None'])
 
-# --- FITNEXUS INTELLIGENCE SECTION ---
-st.write("")
-st.write("")
+    # SCENARIO A: The list is empty (User deselected everything)
+    # -> Force default back to "None"
+    if not current_selection:
+        st.session_state.fit_challenges_selector = ["None"]
 
-with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
-    # Displaying the context from the sidebar inputs
-    challenges_str = ", ".join(selected_challenges) if selected_challenges else "None"
-    st.info(f"Analyzing for: **{selected_height}** | **{challenges_str}**")
-    
-    user_question = st.text_input("Ask a question:", value="Will this fit my body type?")
-    
-    if st.button("Run Analysis"):
-        st.write("Running analysis based on your fit profile...")
-        # Add your backend analysis logic here
+    # SCENARIO B: User just clicked "None" (It wasn't there before, now it is)
+    # -> Clear all other options
+    elif "None" in current_selection and "None" not in previous_selection:
+        st.session_state.fit_challenges_selector = ["None"]
+
+    # SCENARIO C: "None" is present, but the user added a specific trait
+    # -> Remove "None" so only the specific traits remain
+    elif "None" in current_selection and len(current_selection) > 1:
+        st.session_state.fit_challenges_selector = [
+            x for x in current_selection if x != "None"
+        ]
+
+    # Update the history tracker for the next interaction
+    st.session_state.previous_selection = st.session_state.fit_challenges_selector
+
+
+# ---------------------------------------------------------
+# 3. INITIALIZE STATE
+# ---------------------------------------------------------
+# Ensure our history tracker exists on first load
+if 'previous_selection' not in st.session_state:
+    st.session_state.previous_selection = ['None']
+
+# ---------------------------------------------------------
+# 4. RENDER THE UI
+# ---------------------------------------------------------
+st.title("Fit Profile Setup")
+
+st.write("Select any areas where you typically have fit challenges:")
+
+# The Multiselect Widget
+selected_challenges = st.multiselect(
+    label="Fit Challenges",
+    options=FIT_CHALLENGES,
+    default=["None"],
+    key="fit_challenges_selector", # This key binds the widget to session_state
+    on_change=handle_fit_challenge_change # Triggers our logic function above
+)
+
+# ---------------------------------------------------------
+# 5. DISPLAY RESULTS (For debugging/verification)
+# ---------------------------------------------------------
+st.divider()
+st.write("### Summary for Backend:")
+st.json({
+    "user_fit_profile": selected_challenges
+})
