@@ -76,24 +76,33 @@ with st.sidebar:
     
     st.subheader("Simulated Shopper Context")
     
-    # Height Dropdown
-    st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
+    # --- NEW: Height ---
+    height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
+
+    # --- NEW: Body Type Dropdown ---
+    body_type = st.selectbox(
+        "Body Type", 
+        ["Hourglass", "Pear (Triangle)", "Apple (Round)", "Rectangle (Straight)", "Inverted Triangle", "Athletic"],
+        index=3
+    )
     
-    # The Fit Challenge Selector (With Logic)
+    # --- Fit Challenge Selector ---
     st.write("Fit Challenges (Select multiple)")
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
-        default=["Long Torso", "Broad Shoulders"], # Default to match your screenshot
+        default=["Long Torso", "Broad Shoulders"], 
         key="fit_challenges_selector",
         on_change=handle_fit_challenge_change,
         label_visibility="collapsed"
     )
     
-    # The Blue Info Box
+    # --- Blue Info Box (Dynamic) ---
     st.info(
         f"""
-        **Active Biometrics:** Height: 5'3 - 5'7
+        **Active Biometrics:**
+        Height: {height}
+        Body Type: {body_type}
         
         **Issues:** {", ".join(selected_challenges)}
         """
@@ -110,10 +119,11 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # Placeholder for the Product Image
-    # You can replace this URL with your actual image path
-    st.image("https://placehold.co/400x400/png?text=Oversized+Fleece", use_column_width=True)
-    st.caption("Product ID: SCUBA-HZ-001")
+    # --- NEW: Real Image of a Fleece/Sweatshirt ---
+    # Using a reliable Unsplash ID for a grey hoodie/sweatshirt vibe
+    st.image("https://images.unsplash.com/photo-1556906781-9a412961d289?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+             caption="Product ID: SCUBA-HZ-001",
+             use_container_width=True)
 
 with col2:
     st.title("Oversized Fleece Half-Zip")
@@ -134,17 +144,17 @@ with col2:
     # 5. INTELLIGENCE SECTION (The Expandable Box)
     # ---------------------------------------------------------
     with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
-        st.caption(f"Analyzing for: 5'3 - 5'7 | {', '.join(selected_challenges)}")
+        st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
         
         question = st.text_input("Ask a question:", "Will this fit my body type?")
         
         if st.button("Run Analysis"):
             # The Warning Box (Fit Alert)
             st.warning(
-                """
+                f"""
                 **Fit Alert:**
                 
-                Based on the user profile provided, the target product - Scuba Oversized Half-Zip Hoodie - 
+                Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), the target product - Scuba Oversized Half-Zip Hoodie - 
                 may not be an ideal fit. This hoodie is designed to be short in the body, so it might not 
                 accommodate a user with a **Long Torso** very well.
                 
@@ -154,3 +164,4 @@ with col2:
             )
             
             st.button("👉 Shop Recommended Alternative")
+        
