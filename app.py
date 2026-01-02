@@ -87,9 +87,9 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Hero Image: Woman of Color in Grey Fleece
+        # Verified Hero Image: Woman of Color in Grey Zip-Up Performance Fleece
         st.image(
-            "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
             use_container_width=True
         )
@@ -110,16 +110,16 @@ if st.session_state.view_mode == 'original':
             if st.button("Run Analysis"):
                 st.warning(
                     f"""
-                    **Fit Alert:** Based on your profile ({body_type}, Broad Shoulders), the zipper on this specific jacket may pull at the chest and shoulders.
+                    **Fit Alert:** Based on your profile ({body_type}, Broad Shoulders), the standard zipper line on this jacket may pull across the chest.
                     
-                    **Recommendation:** We recommend our Longline version which features a dropped shoulder to accommodate your biometrics.
+                    **Recommendation:** We recommend our Longline version which features an extended hem and dropped shoulders to accommodate your specific biometrics.
                     """
                 )
                 st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
 else:
     with col1:
-        # Verified Alternative Image: Woman of Color in Grey Zip-Up Fleece
+        # Verified Alternative Image: Woman of Color in Grey Zip-Up Hooded Fleece
         st.image(
             "https://images.pexels.com/photos/5935238/pexels-photo-5935238.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
@@ -130,7 +130,7 @@ else:
         st.success(f"✅ Perfect Match for: {', '.join(selected_challenges)}")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write("Designed with an extended hemline and a full-length front zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
+        st.write("Designed with an extended hemline and a high-stretch full-length zipper. Specifically engineered to provide full coverage for long torsos without riding up.")
         
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"):
