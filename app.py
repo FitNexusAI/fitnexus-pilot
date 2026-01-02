@@ -118,6 +118,51 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- NEW IMAGE UPDATED HERE ---
-    # Shows woman in a longer, oversized grey hoodie covering stomach area
+    # --- IMAGE SECTION ---
+    # This was likely where the error occurred. 
+    # Ensuring the parentheses are closed properly here.
     st.image(
+        "https://images.unsplash.com/photo-1579913750778-60eb933f7460?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        caption="Product ID: SCUBA-HZ-001 | Oversized Fit shown on model",
+        use_container_width=True
+    )
+
+with col2:
+    st.title("Oversized Fleece Half-Zip")
+    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
+    
+    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable and soft against your skin. Designed with a roomy fit that falls below the hip.")
+    
+    st.write("**Size**")
+    size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
+    
+    st.button("Add to Bag")
+
+    st.write("") 
+    st.write("") 
+
+    # ---------------------------------------------------------
+    # 5. INTELLIGENCE SECTION
+    # ---------------------------------------------------------
+    with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
+        st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
+        
+        question = st.text_input("Ask a question:", "Will this fit my body type?")
+        
+        if st.button("Run Analysis"):
+            # The Warning Box (Fit Alert)
+            st.warning(
+                f"""
+                **Fit Alert:**
+                
+                Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - Scuba Oversized Half-Zip Hoodie - 
+                may not be an ideal fit for your preferences.
+                
+                While the image shows a longer fit, many customer reviews indicate this item runs **shorter in the torso** than expected. It may not provide the coverage you desire if you have a **Long Torso**.
+                
+                **Recommendation:**
+                As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0 for reliable extra length.
+                """
+            )
+            
+            st.button("👉 Shop Recommended Alternative")
