@@ -20,8 +20,8 @@ PRODUCT_DB = {
         "name": "Oversized Fleece Half-Zip",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # Amazon CDN: Beige Hoodie (Guaranteed to load)
-        "image": "https://m.media-amazon.com/images/I/51d3+Mc-cFL._AC_UX679_.jpg",
+        # Amazon CDN: Beige Half-Zip Fleece (Guaranteed to load)
+        "image": "https://m.media-amazon.com/images/I/71zNw+jI9AL._AC_SY879_.jpg",
         "id": "SCUBA-HZ-001"
     },
     "define_jacket": {
@@ -29,7 +29,7 @@ PRODUCT_DB = {
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
         # Amazon CDN: Black Athletic Jacket (Guaranteed to load)
-        "image": "https://m.media-amazon.com/images/I/51+u1vWvHwL._AC_UY1000_.jpg",
+        "image": "https://m.media-amazon.com/images/I/61N+V2p1o+L._AC_UY1000_.jpg",
         "id": "DEFINE-JKT-009"
     }
 }
@@ -177,8 +177,9 @@ if mode == "🛍️ Retail Storefront (Demo)":
         
         # THE WIDGET
         with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
-            # FIXED LINE BELOW
-            st.caption(f"Analyzing for: **{sim_height}** | **{', '.join(sim_challenges)}**")
+            # FIXED LINE BELOW - Simplified to prevent syntax errors
+            challenges_str = ", ".join(sim_challenges) if sim_challenges else "None"
+            st.caption(f"Analyzing for: **{sim_height}** | **{challenges_str}**")
             
             q = st.text_input("Ask a question:", value="Will this fit my body type?")
             
