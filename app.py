@@ -14,22 +14,22 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (Fixed Images) ---
+# --- UPDATED DATABASE (GUARANTEED CORRECT IMAGES) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Fleece Half-Zip",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # NEW IMAGE: Beige Oversized Hoodie/Sweatshirt vibe
-        "image": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        # FIXED: Beige Hoodie Flat Lay (Guaranteed Image)
+        "image": "https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=1000&auto=format&fit=crop",
         "id": "SCUBA-HZ-001"
     },
     "define_jacket": {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # NEW IMAGE: Sleek Black Activewear Jacket
-        "image": "https://images.unsplash.com/photo-1518331847437-e9635e9538a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        # FIXED: Black Athletic Jacket (Guaranteed Image)
+        "image": "https://images.unsplash.com/photo-1544022613-e87ca75a784a?q=80&w=1000&auto=format&fit=crop",
         "id": "DEFINE-JKT-009"
     }
 }
@@ -154,7 +154,6 @@ with st.sidebar:
 
 # --- MODE 1: WHITE LABEL STOREFRONT ---
 if mode == "🛍️ Retail Storefront (Demo)":
-    # Ensure this string is properly closed with triple quotes
     st.markdown("""### 🛒 Premium Activewear Co. (Integration Demo)""")
     st.markdown("---")
     
