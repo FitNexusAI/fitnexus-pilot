@@ -130,9 +130,9 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Verified Pexels ID 3756679 (Woman of Color, Grey Activewear) ---
+    # --- UPDATED IMAGE: Specific Verified ID (Woman of Color, Grey Hoodie) ---
     st.image(
-        "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
         caption="Product ID: HOODIE-001 | Woman shown in oversized fit",
         use_container_width=True
     )
