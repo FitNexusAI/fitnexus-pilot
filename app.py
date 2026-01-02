@@ -23,12 +23,15 @@ st.markdown(
 # ---------------------------------------------------------
 # 2. STATE MANAGEMENT & EXCLUSIVE LOGIC
 # ---------------------------------------------------------
+
+# Initializing Session States
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
 if 'fit_challenges' not in st.session_state:
     st.session_state.fit_challenges = ["None"]
 
+# Define full list of challenges
 FIT_CHALLENGE_OPTIONS = [
     "None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders",
     "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", 
@@ -37,31 +40,30 @@ FIT_CHALLENGE_OPTIONS = [
 ]
 
 def handle_challenge_logic():
-    # Retrieve what was just selected in the multiselect
+    """Enforces mutual exclusivity: 'None' vs specific challenges."""
     current_selection = st.session_state.challenge_input
     
-    # Logic to enforce mutual exclusivity
     if len(current_selection) > 1:
-        # If "None" was the absolute last thing the user clicked, clear everything else
+        # If 'None' was the last item selected, clear all others
         if current_selection[-1] == "None":
             st.session_state.fit_challenges = ["None"]
-        # If user clicked a specific challenge and "None" was already there, remove "None"
+        # If a specific challenge was selected and 'None' exists, remove 'None'
         elif "None" in current_selection:
             st.session_state.fit_challenges = [x for x in current_selection if x != "None"]
         else:
             st.session_state.fit_challenges = current_selection
     elif not current_selection:
-        # If user clears everything, default back to "None"
+        # If everything is cleared, default to 'None'
         st.session_state.fit_challenges = ["None"]
     else:
         st.session_state.fit_challenges = current_selection
 
-def switch_to_alternative():
-    st.session_state.view_mode = 'alternative'
-
-def switch_to_original():
+def reset_demo_action():
+    """Wipes all selections and restores original product view."""
     st.session_state.view_mode = 'original'
     st.session_state.fit_challenges = ["None"]
+    # We use st.rerun to ensure the dropdown indices reset
+    st.rerun()
 
 # ---------------------------------------------------------
 # 3. SIDEBAR (The Left Panel)
@@ -72,8 +74,19 @@ with st.sidebar:
     st.divider()
     
     st.subheader("Simulated Shopper Context")
-    height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
-    body_type = st.selectbox("Body Type", ["Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0)
+    
+    # Dropdowns now include a blank first option for a clean reset
+    height = st.selectbox(
+        "Height", 
+        ["", "Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], 
+        index=0
+    )
+    
+    body_type = st.selectbox(
+        "Body Type", 
+        ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], 
+        index=0
+    )
     
     # Mutually Exclusive Multiselect
     st.multiselect(
@@ -85,12 +98,17 @@ with st.sidebar:
     )
     
     active_challenges = st.session_state.fit_challenges
-    st.info(f"**Biometrics:** {height}, {body_type}\n\n**Issues:** {', '.join(active_challenges)}")
+    
+    # Clean output display
+    display_challenges = [c for c in active_challenges if c != "None"]
+    
+    st.info(
+        f"**Biometrics:** {height if height else 'Not Set'}, {body_type if body_type else 'Not Set'}\n\n"
+        f"**Issues:** {', '.join(display_challenges) if display_challenges else 'None Selected'}"
+    )
     
     st.divider()
-    if st.button("🔄 Reset Demo"):
-        switch_to_original()
-        st.rerun()
+    st.button("🔄 Reset Demo", on_click=reset_demo_action)
 
 # ---------------------------------------------------------
 # 4. MAIN CONTENT AREA
@@ -102,7 +120,7 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # ORIGINAL HERO IMAGE: Woman in Grey Zip-Up Jacket
+        # Verified Hero Image
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
@@ -117,7 +135,7 @@ if st.session_state.view_mode == 'original':
         if "None" in active_challenges:
             st.success("🎯 FitNexus: 92% Match (High Confidence)")
         
-        st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a smooth full-length zipper and a tailored, athletic fit.")
+        st.write("A versatile layer for seasonal transitions. This textured fleece features a smooth full-length zipper and a tailored, athletic fit.")
         
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_orig")
         st.button("Add to Bag")
@@ -127,15 +145,15 @@ if st.session_state.view_mode == 'original':
             st.text_input("Ask a question:", "Will this fit my body type?")
             
             if st.button("Run Analysis"):
-                if "None" in active_challenges:
+                if "None" in active_challenges or not display_challenges:
                     st.success("Analysis complete: High-confidence match for your standard profile.")
                 else:
                     st.warning(f"**Fit Alert:** Based on your biometrics ({body_type}), the standard zipper track may pull. We recommend our Longline version.")
-                    st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
+                    st.button("👉 Shop Recommended Alternative", on_click=lambda: st.session_state.update({"view_mode": "alternative"}))
 
 else:
     with col1:
-        # VERIFIED SECONDARY IMAGE: Woman in Grey Zip-Up Fleece
+        # Verified Secondary Image
         st.image(
             "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
@@ -143,13 +161,13 @@ else:
         )
 
     with col2:
-        st.success(f"🏆 FitNexus: 98% Match for: {', '.join(active_challenges)}")
+        st.success(f"🏆 FitNexus: 98% Match for your profile")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write("Designed with an extended hemline and a full-length zipper specifically for profiles with " + ", ".join(active_challenges) + ".")
+        st.write(f"Designed with an extended hemline and full-length zipper specifically to accommodate {', '.join(display_challenges)}.")
         
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"):
             st.balloons()
         
-        st.button("← Back to Original Item", on_click=switch_to_original)
+        st.button("← Back to Original Item", on_click=lambda: st.session_state.update({"view_mode": "original"}))
