@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import csv
+import pandas as pd
 from datetime import datetime
 from fit_engine import FitNexusAgent
 
@@ -8,14 +9,16 @@ st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wid
 
 # --- 1. SETUP LOGGING ---
 log_file_path = "fitnexus_usage_log.csv"
+
+# Ensure file exists with headers
 if not os.path.exists(log_file_path):
     with open(log_file_path, mode='w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(["Timestamp", "Height", "Size", "Preference", "Challenges", "User_Query", "Product_Recommended", "AI_Advice"])
 
-# --- 2. INITIALIZE BRAIN (Force v3) ---
-if "agent_v3" not in st.session_state:
-    st.session_state.agent_v3 = FitNexusAgent()
+# --- 2. INITIALIZE BRAIN ---
+if "agent_v4" not in st.session_state: # bumped to v4 to clear cache
+    st.session_state.agent_v4 = FitNexusAgent()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -23,7 +26,6 @@ if "messages" not in st.session_state:
 with st.sidebar:
     st.image("https://placehold.co/200x100/png?text=YOUR+LOGO", width=150)
     st.title("My Fit Profile")
-    st.markdown("Customize your AI recommendations:")
     
     # Inputs
     user_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"])
@@ -43,23 +45,15 @@ with st.sidebar:
     if os.path.exists(log_file_path):
         with open(log_file_path, "rb") as file:
             file_data = file.read()
-        lines = file_data.decode('utf-8').strip().split('\n')
-        count = max(0, len(lines) - 1)
-        st.caption(f"Logged Interactions: {count}")
-        st.download_button(label="Download Usage Data (CSV)", data=file_data, file_name="fitnexus_pilot_data.csv", mime="text/csv")
+        st.download_button(label="Download CSV", data=file_data, file_name="fitnexus_data.csv", mime="text/csv")
 
 # --- 4. MAIN CHAT ---
 st.title("🛍️ Personal Fit Consultant")
-challenges_text = f" and have **{', '.join(user_challenges)}**" if user_challenges and "None" not in user_challenges else ""
-st.markdown(f"##### Hello! I see you usually wear a **{user_size}**{challenges_text}.")
-st.markdown("Ask me about any item, and I'll tell you how it fits *you*.")
 
-# Display History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Handle New Question
 if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -67,9 +61,8 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
 
     with st.chat_message("assistant"):
         with st.spinner("Analyzing..."):
-            result = st.session_state.agent_v3.think(prompt, user_profile)
+            result = st.session_state.agent_v4.think(prompt, user_profile)
             
-            # Show Answer
             if result["image"]:
                 col1, col2 = st.columns([2, 1])
                 with col1: st.markdown(result["text"])
@@ -77,24 +70,30 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
             else:
                 st.markdown(result["text"])
             
-            # LOGGING (Simplified to prevent Syntax Errors)
+            # --- LOGGING ACTION ---
             try:
                 with open(log_file_path, mode='a', newline='') as f:
                     writer = csv.writer(f)
-                    # We create the list first to ensure valid syntax
-                    log_row = [
+                    writer.writerow([
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        user_height,
-                        user_size,
-                        user_pref,
-                        ", ".join(user_challenges),
-                        prompt,
-                        result.get("product_name", "None"),
+                        user_height, user_size, user_pref, 
+                        ", ".join(user_challenges), 
+                        prompt, 
+                        result.get("product_name", "None"), 
                         result["text"]
-                    ]
-                    writer.writerow(log_row)
+                    ])
+                st.success("✅ Interaction Logged!") 
             except Exception as e:
-                st.error(f"Logging Error: {e}")
+                st.error(f"Log Error: {e}")
 
-    # Save to history
     st.session_state.messages.append({"role": "assistant", "content": result["text"]})
+
+# --- 5. LIVE DEBUGGER (Verify Data Exists) ---
+st.divider()
+st.markdown("### 🕵️‍♀️ Live Data Preview (Debug)")
+if os.path.exists(log_file_path):
+    try:
+        df = pd.read_csv(log_file_path)
+        st.dataframe(df) # Shows the actual table on screen
+    except:
+        st.write("Log file exists but is empty.")
