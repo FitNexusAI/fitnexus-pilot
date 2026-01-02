@@ -130,21 +130,19 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- IMAGE (Woman of Color, Grey Button-Up Fleece) ---
+    # --- IMAGE (Woman of Color, Grey Zip-Up) ---
     st.image(
         "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-        # Updated Caption to reflect the new item type
-        caption="Product ID: FLCE-JKT-001 | Woman shown in relaxed fit",
+        caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
         use_container_width=True
     )
 
 with col2:
-    # --- UPDATED TITLE & DESCRIPTION (Reflecting the image) ---
-    st.title("Textured Fleece Button-Up Jacket")
+    # --- UPDATED TITLE & DESCRIPTION (Zipper Correction) ---
+    st.title("Textured Fleece Zip-Up Jacket")
     st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
     
-    # New description based on the visual
-    st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a classic button-front closure, a relaxed silhouette, and soft, insulating fabric. Perfect for layering over activewear or casual tops.")
+    st.write("A versatile layer for seasonal transitions. This textured fleece jacket features a smooth full-length zipper, a relaxed silhouette, and soft, insulating fabric. Perfect for layering over activewear or casual tops.")
     
     st.write("**Size**")
     size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -173,19 +171,18 @@ with col2:
                     """
                 )
             else:
-                # Updated Warning Text to match new product name
                 st.warning(
                     f"""
                     **Fit Alert:**
                     
-                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Textured Fleece Button-Up Jacket** - 
+                    Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), this specific product - **Textured Fleece Zip-Up Jacket** - 
                     may not be an ideal fit for your preferences.
                     
                     **Analysis:**
                     While the model image shows a relaxed fit, our returns data indicates this item sits just below the waist. For a user with a **Long Torso**, this often results in the jacket feeling like a "cropped" fit rather than the intended length.
                     
                     **Recommendation:**
-                    As an alternative, I recommend the **CloudSoft Longline Cardigan** for reliable extra length.
+                    As an alternative, I recommend the **CloudSoft Longline Zip-Up** for reliable extra length.
                     """
                 )
             
