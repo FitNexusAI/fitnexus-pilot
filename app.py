@@ -30,6 +30,7 @@ class FitNexusEngine:
     def analyze_fit(self, query, user_profile):
         if self.catalog.empty: return {"error": "Catalog disconnected"}
         
+        # Search Logic
         clean_query = query.lower().translate(str.maketrans('', '', string.punctuation))
         scored = []
         for _, row in self.catalog.iterrows():
@@ -40,13 +41,14 @@ class FitNexusEngine:
         scored.sort(key=lambda x: x[0], reverse=True)
         products = [item[1] for item in scored] if scored else [r for _, r in self.catalog.iterrows()][:4]
 
+        # AI Analysis
         context = "\n".join([f"- {p['name']} ({p['fit_type']}): {p['fit_advice']}" for p in products[:4]])
         
         system_prompt = (
             "You are the FitNexus API. Analyze the User Profile vs Product Data. "
             "Output a short, decisive recommendation for the shopper. "
             "Focus on technical fit (stretch, cut, fabric). "
-            "Specifically mention their 'Fit Challenge' if it is relevant."
+            "If the user has multiple challenges, explain how they interact."
         )
         user_msg = f"Profile: {user_profile}\nQuery: {query}\nInventory:\n{context}"
         
@@ -70,26 +72,27 @@ with st.sidebar:
     mode = st.radio("Select Demo Mode:", ["🛍️ Retail Storefront (Demo)", "👨‍💻 API Developer View"])
     st.divider()
     
-    # --- NEW: GRANULAR DROPDOWNS ---
+    # --- GRANULAR CONTROLS ---
     st.subheader("Simulated Shopper Context")
-    st.caption("Adjust these controls to test different user scenarios live.")
+    st.caption("Combine parameters to test complex edge cases.")
     
-    # 1. Height Dropdown
+    # 1. Height
     sim_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"], index=2)
     
-    # 2. Fit Challenge Dropdown (The Differentiator)
-    sim_challenge = st.selectbox(
-        "Primary Fit Challenge", 
-        ["None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Large Bust", "Small Bust", "Wide Hips", "Narrow Hips", "Thick Thighs", "Sensitive Skin"]
+    # 2. Multi-Select Challenges (UPDATED)
+    sim_challenges = st.multiselect(
+        "Fit Challenges (Select multiple)", 
+        ["Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Large Bust", "Small Bust", "Wide Hips", "Narrow Hips", "Thick Thighs", "Sensitive Skin"],
+        default=[]
     )
     
-    # Construct the profile dynamically
+    # Construct Profile
     user_data = {
         "height": sim_height, 
-        "challenges": [sim_challenge] if sim_challenge != "None" else []
+        "challenges": sim_challenges if sim_challenges else ["None"]
     }
     
-    st.info(f"**Active Biometrics:**\n{user_data}")
+    st.info(f"**Active Biometrics:**\nHeight: {sim_height}\nIssues: {', '.join(sim_challenges) if sim_challenges else 'None'}")
 
 # --- MODE 1: WHITE LABEL STOREFRONT ---
 if mode == "🛍️ Retail Storefront (Demo)":
@@ -121,16 +124,16 @@ if mode == "🛍️ Retail Storefront (Demo)":
         """, unsafe_allow_html=True)
         
         with st.expander("📐 FitNexus Intelligence (Check My Fit)"):
-            # We show the user their current setting so the demo is clear
-            if sim_challenge != "None":
-                st.write(f"Analyzing for: **{sim_height}** with **{sim_challenge}**")
+            # Dynamic display of current user context
+            if sim_challenges:
+                st.write(f"Analyzing for: **{sim_height}** with **{', '.join(sim_challenges)}**")
             else:
-                st.write(f"Analyzing for: **{sim_height}**")
+                st.write(f"Analyzing for: **{sim_height}** (Standard Fit)")
                 
-            q = st.text_input("Ask a question:", value="How will this fit my body type?")
+            q = st.text_input("Ask a question:", value="Will this fit my body type?")
             
             if st.button("Run Analysis"):
-                with st.spinner("Processing technical specs..."):
+                with st.spinner("Processing biometrics..."):
                     res = st.session_state.engine.analyze_fit(q, user_data)
                     st.success(f"**Recommendation:**\n\n{res['analysis']}")
 
@@ -141,7 +144,7 @@ else:
     st.markdown("Send us user biometrics + product SKUs, we return fit risk analysis.")
     
     if st.button("Send Mock Request"):
-        # The code block updates dynamically based on your dropdown selection
+        # The JSON updates dynamically based on multi-select
         st.code(json.dumps({
             "endpoint": "POST /v1/analyze_fit",
             "header": {"Authorization": "Bearer sk_live_..."},
