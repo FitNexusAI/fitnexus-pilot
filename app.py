@@ -15,9 +15,9 @@ if not os.path.exists(log_file_path):
         writer = csv.writer(f)
         writer.writerow(["Timestamp", "Height", "Size", "Preference", "Challenges", "User_Query", "Product_Recommended", "AI_Advice"])
 
-# --- 2. INITIALIZE BRAIN ---
-if "agent_v4" not in st.session_state:
-    st.session_state.agent_v4 = FitNexusAgent()
+# --- 2. INITIALIZE BRAIN (Force v5 to reload CSV) ---
+if "agent_v5" not in st.session_state:
+    st.session_state.agent_v5 = FitNexusAgent()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -36,7 +36,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Admin Tools (Only you need to click this)
+    # Admin Tools
     st.markdown("### 📊 Admin Tools")
     if st.button("🔄 Refresh Logs"):
         st.rerun()
@@ -60,7 +60,8 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
 
     with st.chat_message("assistant"):
         with st.spinner("Analyzing..."):
-            result = st.session_state.agent_v4.think(prompt, user_profile)
+            # Use v5 brain
+            result = st.session_state.agent_v5.think(prompt, user_profile)
             
             if result["image"]:
                 col1, col2 = st.columns([2, 1])
@@ -81,9 +82,7 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
                         result.get("product_name", "None"), 
                         result["text"]
                     ])
-                # Removed the "Success!" popup so it feels seamless to the user
             except Exception as e:
-                # We still print errors to the console just in case
                 print(f"Log Error: {e}")
 
     st.session_state.messages.append({"role": "assistant", "content": result["text"]})
