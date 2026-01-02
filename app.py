@@ -15,9 +15,10 @@ if not os.path.exists(log_file_path):
         writer = csv.writer(f)
         writer.writerow(["Timestamp", "Height", "Size", "Preference", "Challenges", "User_Query", "Product_Recommended", "AI_Advice"])
 
-# --- 2. INITIALIZE BRAIN (Force v5 to reload CSV) ---
-if "agent_v5" not in st.session_state:
-    st.session_state.agent_v5 = FitNexusAgent()
+# --- 2. INITIALIZE BRAIN (Force v6 to load new recommendation logic) ---
+# We changed this to 'agent_v6' so Streamlit re-reads fit_engine.py!
+if "agent_v6" not in st.session_state:
+    st.session_state.agent_v6 = FitNexusAgent()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -60,8 +61,8 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
 
     with st.chat_message("assistant"):
         with st.spinner("Analyzing..."):
-            # Use v5 brain
-            result = st.session_state.agent_v5.think(prompt, user_profile)
+            # Use v6 brain
+            result = st.session_state.agent_v6.think(prompt, user_profile)
             
             if result["image"]:
                 col1, col2 = st.columns([2, 1])
