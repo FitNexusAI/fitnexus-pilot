@@ -8,13 +8,10 @@ st.set_page_config(layout="wide", page_title="FitNexus Enterprise Demo")
 st.markdown(
     """
     <style>
-    /* 1. Make the Multiselect Chips Red */
     span[data-baseweb="tag"] {
         background-color: #F74845 !important;
         color: white !important;
     }
-    
-    /* 2. Style the "Shop Recommended Alternative" / Primary Buttons Red */
     div.stButton > button:first-child {
         background-color: #F74845;
         color: white;
@@ -25,13 +22,9 @@ st.markdown(
         background-color: #D3322F;
         color: white;
     }
-
-    /* 3. Custom font tweaks for headers */
     h1, h2, h3 {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
-    
-    /* 4. Hide standard Streamlit chrome for a clean demo */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -42,12 +35,8 @@ st.markdown(
 # ---------------------------------------------------------
 # 2. STATE MANAGEMENT & CALLBACKS
 # ---------------------------------------------------------
-
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
-
-if 'previous_selection' not in st.session_state:
-    st.session_state.previous_selection = ['None']
 
 def switch_to_alternative():
     st.session_state.view_mode = 'alternative'
@@ -56,175 +45,85 @@ def switch_to_original():
     st.session_state.view_mode = 'original'
 
 # ---------------------------------------------------------
-# 3. FIT LOGIC HANDLER
-# ---------------------------------------------------------
-FIT_CHALLENGES = [
-    "None",
-    "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders",
-    "Long Arms", "Short Arms", "Full Bust", "Small Bust",
-    "Round Stomach", "Soft Midsection", "Curvy Hips", "Wide Hips", 
-    "Narrow Hips", "High Hip Shelf", "Athletic Thighs", "Long Legs", 
-    "Short Legs", "Muscular Calves"
-]
-
-def handle_fit_challenge_change():
-    current = st.session_state.fit_challenges_selector
-    previous = st.session_state.get('previous_selection', ['None'])
-
-    if not current:
-        st.session_state.fit_challenges_selector = ["None"]
-    elif "None" in current and "None" not in previous:
-        st.session_state.fit_challenges_selector = ["None"]
-    elif "None" in current and len(current) > 1:
-        st.session_state.fit_challenges_selector = [x for x in current if x != "None"]
-
-    st.session_state.previous_selection = st.session_state.fit_challenges_selector
-
-# ---------------------------------------------------------
-# 4. SIDEBAR (The Left Panel)
+# 3. SIDEBAR (The Left Panel)
 # ---------------------------------------------------------
 with st.sidebar:
     st.header("FitNexus Engine")
     st.caption("v2.1.0 | Enterprise Retail Build")
-    
     st.divider()
     
     st.subheader("Simulated Shopper Context")
-    
     height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
-
-    body_type = st.selectbox(
-        "Body Type", 
-        ["Curvy", "Athletic / Muscular", "Straight / Slender", "Full Figured", "Petite Frame"],
-        index=0
-    )
+    body_type = st.selectbox("Body Type", ["Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0)
     
     selected_challenges = st.multiselect(
-        label="Fit Challenges",
-        options=FIT_CHALLENGES,
-        default=["None"],
-        key="fit_challenges_selector",
-        on_change=handle_fit_challenge_change,
-        label_visibility="collapsed"
+        "Fit Challenges",
+        ["Short Torso", "Long Torso", "Broad Shoulders", "Curvy Hips", "Long Arms"],
+        default=["Short Torso", "Broad Shoulders"]
     )
     
-    st.info(
-        f"""
-        **Active Biometrics:**
-        Height: {height}
-        Body Type: {body_type}
-        
-        **Issues:** {", ".join(selected_challenges)}
-        """
-    )
+    st.info(f"**Biometrics:** {height}, {body_type}\n\n**Issues:** {', '.join(selected_challenges)}")
     
     if st.session_state.view_mode == 'alternative':
-        st.divider()
-        st.button("🔄 Reset Demo", on_click=switch_to_original)
+        st.button("🔄 Reset to Original", on_click=switch_to_original)
 
 # ---------------------------------------------------------
-# 5. MAIN CONTENT AREA (DYNAMIC VIEW SWITCHING)
+# 4. MAIN CONTENT AREA
 # ---------------------------------------------------------
-
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
 st.divider()
 
 col1, col2 = st.columns([1, 1])
 
-# =========================================================
-# VIEW A: THE ORIGINAL PRODUCT (Textured Fleece Pullover)
-# =========================================================
 if st.session_state.view_mode == 'original':
     with col1:
-        # ORIGINAL HERO IMAGE: Woman in Grey Hoodie Pullover
+        # Verified: Woman of Color in Grey Zip-Up Fleece
         st.image(
-            "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-            caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
+            "https://images.unsplash.com/photo-1548690312-e3b507d8c110?auto=format&fit=crop&w=800&q=80",
+            caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
             use_container_width=True
         )
 
     with col2:
-        st.title("Textured Fleece Pullover Jacket")
+        st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
-        
-        st.write("A versatile layer for seasonal transitions. This textured fleece features a relaxed silhouette and soft, insulating fabric.")
+        st.write("A versatile layer with a full-length zipper closure and zippered hand pockets. Features a high-collar design for wind protection and a tailored, athletic fit.")
         
         st.write("**Size**")
-        size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
-        
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_orig")
         st.button("Add to Bag")
 
-        st.write("") 
-        st.write("") 
-
-        # --- DYNAMIC INTELLIGENCE SECTION ---
         with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
             st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
-            
-            question = st.text_input("Ask a question:", "Will this fit my body type and address my fit challenges?")
+            st.text_input("Ask a question:", "Will this fit my body type?")
             
             if st.button("Run Analysis"):
-                if "None" in selected_challenges:
-                     st.success(f"Fit Confirmation: Great Match! The relaxed fit aligns with your {body_type} body type.")
-                else:
-                    # Build dynamic analysis text
-                    analysis_points = []
+                st.warning(
+                    f"""
+                    **Fit Alert:** Based on your profile ({body_type}, Broad Shoulders), the zipper on this specific jacket may pull at the chest and shoulders.
                     
-                    if "Long Torso" in selected_challenges:
-                        analysis_points.append("This jacket sits just below the waist (22\" length). For a **Long Torso**, this often feels like a 'cropped' fit rather than the intended length.")
-                    
-                    if "Broad Shoulders" in selected_challenges:
-                        analysis_points.append("The shoulder seams are structured. For **Broad Shoulders**, this may feel restrictive when layering.")
-                        
-                    if "Curvy Hips" in selected_challenges or "Wide Hips" in selected_challenges:
-                        analysis_points.append("The hemline features a non-stretch binding. For **Curvy Hips**, this often causes the jacket to ride up when walking rather than sitting flat.")
+                    **Recommendation:** We recommend our Longline version which features a dropped shoulder to accommodate your biometrics.
+                    """
+                )
+                st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
 
-                    final_analysis = " ".join(analysis_points)
-
-                    st.warning(
-                        f"""
-                        **Fit Alert:**
-                        
-                        Based on the user profile ({body_type}, {', '.join(selected_challenges)}), this specific product may not be an ideal fit.
-                        
-                        **Analysis:**
-                        {final_analysis}
-                        
-                        **Recommendation:**
-                        As an alternative, I recommend the **CloudSoft Longline Zip-Up**. It features a dropped shoulder and extended hem that accommodates these specific fit needs.
-                        """
-                    )
-                    
-                    st.button("👉 Shop Recommended Alternative", on_click=switch_to_alternative)
-
-# =========================================================
-# VIEW B: THE RECOMMENDED ALTERNATIVE (Verified Zip-Up)
-# =========================================================
 else:
     with col1:
-        # VERIFIED ZIP-UP IMAGE: Woman wearing a grey hoodie with a visible zipper track
+        # Verified: Woman of Color in Longline Zip-Up Performance Wear
         st.image(
-            "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-            caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
+            "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80",
+            caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
             use_container_width=True
         )
 
     with col2:
         st.success(f"✅ Perfect Match for: {', '.join(selected_challenges)}")
-        
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
+        st.write("Designed with an extended hemline and a full-length front zipper. The CloudSoft fabric provides extra stretch at the shoulders and hips to prevent riding up.")
         
-        st.write("**Why this fits you:** Designed with an extended hemline (3 inches longer than standard) and a full-length zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
-        
-        st.write("**Size**")
-        size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
-        
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"):
             st.balloons()
-            st.toast("Added to Bag!", icon="🛍️")
-
-        st.write("")
-        st.divider()
         
         st.button("← Back to Original Item", on_click=switch_to_original)
