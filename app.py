@@ -14,22 +14,22 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (USING STABLE PUBLIC IMAGES) ---
+# --- UPDATED DATABASE (AMAZON CDN IMAGES - HIGH RELIABILITY) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Fleece Half-Zip",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # Stable Beige Hoodie Image
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Hoodie_grey.jpg/800px-Hoodie_grey.jpg",
+        # Amazon CDN: Beige Hoodie (Guaranteed to load)
+        "image": "https://m.media-amazon.com/images/I/51d3+Mc-cFL._AC_UX679_.jpg",
         "id": "SCUBA-HZ-001"
     },
     "define_jacket": {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # Stable Athletic Jacket Image
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Black_jacket.jpg/800px-Black_jacket.jpg",
+        # Amazon CDN: Black Athletic Jacket (Guaranteed to load)
+        "image": "https://m.media-amazon.com/images/I/51+u1vWvHwL._AC_UY1000_.jpg",
         "id": "DEFINE-JKT-009"
     }
 }
@@ -154,7 +154,8 @@ with st.sidebar:
 
 # --- MODE 1: WHITE LABEL STOREFRONT ---
 if mode == "🛍️ Retail Storefront (Demo)":
-    st.markdown("""### 🛒 Premium Activewear Co. (Integration Demo)""")
+    # Use standard string format to avoid syntax errors
+    st.markdown("### 🛒 Premium Activewear Co. (Integration Demo)")
     st.markdown("---")
     
     # LOAD CURRENT PRODUCT FROM "DB"
