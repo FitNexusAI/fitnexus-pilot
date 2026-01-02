@@ -136,9 +136,9 @@ col1, col2 = st.columns([1, 1])
 # =========================================================
 if st.session_state.view_mode == 'original':
     with col1:
-        # High quality Unsplash image of woman in activewear
+        # RESTORED ORIGINAL IMAGE: Pexels ID 7242947
         st.image(
-            "https://images.unsplash.com/photo-1545129139-1beb780cf337?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
             use_container_width=True
         )
@@ -208,7 +208,7 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # UPDATED IMAGE: Verified Unsplash ID (Woman in Grey Hoodie)
+        # CORRECT ALTERNATIVE IMAGE: Unsplash ID (Woman in Grey Hoodie)
         st.image(
             "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
