@@ -136,7 +136,7 @@ col1, col2 = st.columns([1, 1])
 # =========================================================
 if st.session_state.view_mode == 'original':
     with col1:
-        # RESTORED ORIGINAL IMAGE: Pexels ID 7242947
+        # ORIGINAL IMAGE: Pexels ID 7242947 (Correctly Restored)
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Woman shown in relaxed fit",
@@ -208,9 +208,9 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # CORRECT ALTERNATIVE IMAGE: Unsplash ID (Woman in Grey Hoodie)
+        # NEW IMAGE: Pexels ID 6311613 (Woman in Grey Zip-Up Hoodie)
         st.image(
-            "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
