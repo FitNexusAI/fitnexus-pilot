@@ -66,12 +66,13 @@ class FitNexusEngine:
             f"{alt_text}"
         )
         
-        # 3. AI PROMPT
+        # 3. AI PROMPT (Updated to ensure keyword usage)
         system_prompt = (
             "You are the FitNexus API. Your goal is to Save the Sale. "
             "1. Analyze the 'TARGET PRODUCT' against the User Profile. "
             "2. If the Target Product is a POOR fit (e.g., cropped item for long torso), "
-            "you MUST recommend a specific item from the 'AVAILABLE ALTERNATIVES' list that solves the problem. "
+            "you MUST recommend a specific item from the 'AVAILABLE ALTERNATIVES' list. "
+            "Use the phrase 'As an alternative' or 'I recommend instead' to signal the switch. "
             "3. If the Target Product is a GOOD fit, confirm it enthusiastically. "
             "Keep the output decisive."
         )
@@ -137,21 +138,24 @@ if mode == "🛍️ Retail Storefront (Demo)":
             st.caption(f"Analyzing for: **{sim_height}** | **{', '.join(sim_challenges)}**")
             q = st.text_input("Ask a question:", value="Will this fit my body type?")
             
-            # --- FIXED LOGIC: SAVE TO SESSION STATE ---
             if st.button("Run Analysis"):
                 with st.spinner("Processing technical specs..."):
                     st.session_state.last_result = st.session_state.engine.analyze_fit(q, user_data, forced_product_context=DISPLAYED_PRODUCT_NAME)
             
-            # Display Result if it exists in memory
             if "last_result" in st.session_state:
                 res = st.session_state.last_result
+                text_lower = res['analysis'].lower()
                 
-                # Check for Pivot
-                is_pivot = "recommend" in res['analysis'].lower() and "instead" in res['analysis'].lower()
+                # --- UPDATED PIVOT LOGIC (More Sensitive) ---
+                # Now checks for "alternative" OR "instead" OR the combination of "not a good fit" + "recommend"
+                is_pivot = (
+                    "alternative" in text_lower or 
+                    "instead" in text_lower or 
+                    ("not a good fit" in text_lower and "recommend" in text_lower)
+                )
                 
                 if is_pivot:
                     st.warning(f"**Fit Alert:**\n\n{res['analysis']}")
-                    # THE NEW LINK FEATURE
                     st.button("👉 Shop Recommended Alternative", type="primary", use_container_width=True)
                 else:
                     st.success(f"**Fit Confirmation:**\n\n{res['analysis']}")
@@ -172,6 +176,6 @@ else:
             
         st.code(json.dumps({
             "status": "success",
-            "cross_sell": True if "instead" in res['analysis'] else False,
+            "cross_sell": True if "alternative" in res['analysis'].lower() else False,
             "message": res['analysis']
         }, indent=2), language="json")
