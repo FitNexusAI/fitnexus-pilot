@@ -14,13 +14,13 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE WITH STABLE IMAGES ---
+# --- UPDATED DATABASE (Fixed Images) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
         "name": "Oversized Fleece Half-Zip",
         "price": "$118.00",
         "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # Stable Unsplash Image (Beige/Neutral Hoodie)
+        # NEW IMAGE: Beige Oversized Hoodie/Sweatshirt vibe
         "image": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
         "id": "SCUBA-HZ-001"
     },
@@ -28,7 +28,7 @@ PRODUCT_DB = {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # Stable Unsplash Image (Activewear Jacket)
+        # NEW IMAGE: Sleek Black Activewear Jacket
         "image": "https://images.unsplash.com/photo-1518331847437-e9635e9538a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
         "id": "DEFINE-JKT-009"
     }
@@ -154,7 +154,8 @@ with st.sidebar:
 
 # --- MODE 1: WHITE LABEL STOREFRONT ---
 if mode == "🛍️ Retail Storefront (Demo)":
-    st.markdown("### 🛒 Premium Activewear Co. (Integration Demo)")
+    # Ensure this string is properly closed with triple quotes
+    st.markdown("""### 🛒 Premium Activewear Co. (Integration Demo)""")
     st.markdown("---")
     
     # LOAD CURRENT PRODUCT FROM "DB"
