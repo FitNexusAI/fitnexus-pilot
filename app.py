@@ -207,9 +207,9 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # UPDATED IMAGE: Pexels ID 4498604 (Woman in Grey Zip-Up Hoodie)
+        # UPDATED IMAGE: Verified Pexels ID 6626966 (Woman actively zipping up a jacket)
         st.image(
-            "https://images.pexels.com/photos/4498604/pexels-photo-4498604.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+            "https://images.pexels.com/photos/6626966/pexels-photo-6626966.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
