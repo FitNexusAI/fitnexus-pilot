@@ -14,17 +14,15 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (New Header & Description) ---
+# --- UPDATED DATABASE (New Image) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
-        # UPDATED: Changed name to "Hoodie"
-        "name": "Oversized Fleece Hoodie",
+        "name": "Oversized Cotton Hoodie",
         "price": "$118.00",
-        # UPDATED: Description matches a hoodie
-        "desc": "The ultimate post-workout layer. Soft cotton-blend fleece with a cozy hood and kangaroo pocket.",
-        # Pexels: Woman in Beige Hoodie (Verified)
-        "image": "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "id": "SCUBA-HD-001"
+        "desc": "The ultimate post-workout layer. Naturally breathable soft cotton fabric with a cozy hood and kangaroo pocket.",
+        # NEW IMAGE: Portrait of a woman of color in a grey hoodie (Pexels verified)
+        "image": "https://images.pexels.com/photos/3768169/pexels-photo-3768169.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "id": "SCUBA-CT-001"
     },
     "define_jacket": {
         "name": "Define Jacket Luon",
@@ -217,6 +215,6 @@ else:
     if st.button("Send Mock Request"):
         st.code(json.dumps({
             "endpoint": "POST /v1/analyze_fit",
-            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HD-001"}
+            "payload": {"user_profile": user_data, "product_sku": "SCUBA-CT-001"}
         }, indent=2), language="json")
         st.code(json.dumps({"status": "success", "message": "High Risk: Torso Length Mismatch"}, indent=2), language="json")
