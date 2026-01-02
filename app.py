@@ -6,22 +6,23 @@ st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wid
 
 # --- SIDEBAR PROFILE INPUTS ---
 with st.sidebar:
+    # 1. Logo
     st.image("https://placehold.co/200x100/png?text=YOUR+LOGO", width=150)
     st.title("My Fit Profile")
     st.markdown("Customize your AI recommendations:")
     
-    # 1. Height
+    # 2. Height
     user_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"])
     
-    # 2. Usual Size
+    # 3. Usual Size
     user_size = st.selectbox("Usual Size", ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"])
     
-    # 3. Fit Challenges (Updated with Bust Options)
+    # 4. Fit Challenges (Includes Bust Options)
     user_challenges = st.multiselect(
         "Fit Challenges", 
         [
             "None", 
-            "Large Bust", "Small Bust",       # <--- NEW ADDITIONS
+            "Large Bust", "Small Bust",
             "Broad Shoulders", "Narrow Shoulders", 
             "Long Torso", "Short Torso", 
             "Wide Hips", "Narrow Hips", 
@@ -30,7 +31,7 @@ with st.sidebar:
         ]
     )
     
-    # 4. Fit Preference
+    # 5. Fit Preference
     user_pref = st.radio("I prefer clothes to fit:", ["Tight / Compression", "Standard / Regular", "Loose / Oversized"])
     
     # Store all this in the profile dictionary
@@ -44,16 +45,32 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 FitNexus Thesis Project")
     
-    # --- ADMIN SECTION: DOWNLOAD LOGS ---
+    # --- ADMIN SECTION (With Refresh Fix) ---
     st.markdown("### 📊 Admin Tools")
-    if os.path.exists("fitnexus_usage_log.csv"):
-        with open("fitnexus_usage_log.csv", "rb") as file:
-            st.download_button(
-                label="Download Usage Data (CSV)",
-                data=file,
-                file_name="fitnexus_pilot_data.csv",
-                mime="text/csv"
-            )
+    
+    # Force Refresh Button (Updates the download data)
+    if st.button("🔄 Refresh Logs"):
+        st.rerun()
+
+    log_file_path = "fitnexus_usage_log.csv"
+    
+    # Only show download if file exists
+    if os.path.exists(log_file_path):
+        with open(log_file_path, "rb") as file:
+            file_data = file.read()
+        
+        # Show count of interactions
+        num_lines = len(file_data.decode('utf-8').split('\n')) - 2 
+        st.caption(f"Logged Interactions: {max(0, num_lines)}")
+        
+        st.download_button(
+            label="Download Usage Data (CSV)",
+            data=file_data,
+            file_name="fitnexus_pilot_data.csv",
+            mime="text/csv"
+        )
+    else:
+        st.info("No logs yet. Ask a question to start logging.")
 
 # --- MAIN CHAT INTERFACE ---
 st.title("🛍️ Personal Fit Consultant")
