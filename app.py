@@ -120,10 +120,10 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Woman in Grey Hoodie ---
+    # --- UPDATED IMAGE: Reliable URL of Woman in Grey Hoodie ---
     st.image(
-        "https://images.unsplash.com/photo-1579913750778-60eb933f7460?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        caption="Product ID: SCUBA-HZ-001 | Woman shown in oversized fit",
+        "https://images.unsplash.com/photo-1556906781-9a412961d289?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        caption="Product ID: SCUBA-HZ-001 | Model is 5'9 wearing size M/L",
         use_container_width=True
     )
 
