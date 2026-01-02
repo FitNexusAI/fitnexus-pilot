@@ -208,9 +208,9 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # UPDATED IMAGE: Verified Unsplash Source (Woman in Grey Zip-Up)
+        # UPDATED IMAGE: Verified Pexels ID 4132326 (Woman in Grey Zip-Up Activewear)
         st.image(
-            "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+            "https://images.pexels.com/photos/4132326/pexels-photo-4132326.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
