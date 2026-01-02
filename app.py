@@ -79,8 +79,7 @@ with st.sidebar:
     # --- Height ---
     height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
 
-    # --- NEW: Simplified Body Types ---
-    # Removed "Inverted Triangle" etc. and replaced with common terms
+    # --- Simplified Body Types ---
     body_type = st.selectbox(
         "Body Type", 
         ["Curvy", "Athletic / Muscular", "Straight / Slender", "Full Figured", "Petite Frame"],
@@ -119,50 +118,6 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- NEW: Updated Image (Grey Sweatshirt/Fleece vibe) ---
+    # --- NEW IMAGE UPDATED HERE ---
+    # Shows woman in a longer, oversized grey hoodie covering stomach area
     st.image(
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop", 
-        caption="Product ID: SCUBA-HZ-001",
-        use_container_width=True
-    )
-
-with col2:
-    st.title("Oversized Fleece Half-Zip")
-    st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
-    
-    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable and soft against your skin.")
-    
-    st.write("**Size**")
-    size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
-    
-    st.button("Add to Bag")
-
-    st.write("") 
-    st.write("") 
-
-    # ---------------------------------------------------------
-    # 5. INTELLIGENCE SECTION
-    # ---------------------------------------------------------
-    with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
-        st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
-        
-        question = st.text_input("Ask a question:", "Will this fit my body type?")
-        
-        if st.button("Run Analysis"):
-            # The Warning Box (Fit Alert)
-            st.warning(
-                f"""
-                **Fit Alert:**
-                
-                Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), the target product - Scuba Oversized Half-Zip Hoodie - 
-                may not be an ideal fit.
-                
-                This hoodie is designed to be short/cropped in the body, so it might not accommodate a user with a **Long Torso** very well.
-                
-                **Recommendation:**
-                As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0. Its slim fit design 
-                should work well with your body type.
-                """
-            )
-            
-            st.button("👉 Shop Recommended Alternative")
