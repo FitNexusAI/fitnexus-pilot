@@ -8,7 +8,7 @@ st.set_page_config(layout="wide", page_title="FitNexus Enterprise Demo")
 st.markdown(
     """
     <style>
-    /* Change Sidebar Background Color */
+    /* Change Sidebar Background Color for visibility */
     [data-testid="stSidebar"] {
         background-color: #f8f9fa;
     }
@@ -87,7 +87,7 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # RESTORED HERO IMAGE: Woman in Grey Fleece
+        # Verified Hero Image: Woman of Color in Grey Fleece
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
@@ -119,9 +119,9 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # VERIFIED ZIP-UP IMAGE: Woman in Grey Zip-Up performance apparel
+        # Verified Alternative Image: Woman of Color in Grey Zip-Up Fleece
         st.image(
-            "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "https://images.pexels.com/photos/5935238/pexels-photo-5935238.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
             use_container_width=True
         )
@@ -130,4 +130,10 @@ else:
         st.success(f"✅ Perfect Match for: {', '.join(selected_challenges)}")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write("Designed with an extended hemline and a full-length front zipper. Specifically engineered to provide coverage
+        st.write("Designed with an extended hemline and a full-length front zipper. Specifically engineered to provide coverage without riding up or pulling at the shoulders.")
+        
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
+        if st.button("Add to Bag"):
+            st.balloons()
+        
+        st.button("← Back to Original Item", on_click=switch_to_original)
