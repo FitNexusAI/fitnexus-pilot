@@ -36,7 +36,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 2. FIT LOGIC HANDLER (The "None" Logic)
+# 2. FIT LOGIC HANDLER
 # ---------------------------------------------------------
 FIT_CHALLENGES = [
     "None",
@@ -76,14 +76,15 @@ with st.sidebar:
     
     st.subheader("Simulated Shopper Context")
     
-    # --- NEW: Height ---
+    # --- Height ---
     height = st.selectbox("Height", ["Under 5'0", "5'0 - 5'2", "5'3 - 5'7", "5'8 - 5'11", "Over 6'0"], index=2)
 
-    # --- NEW: Body Type Dropdown ---
+    # --- NEW: Simplified Body Types ---
+    # Removed "Inverted Triangle" etc. and replaced with common terms
     body_type = st.selectbox(
         "Body Type", 
-        ["Hourglass", "Pear (Triangle)", "Apple (Round)", "Rectangle (Straight)", "Inverted Triangle", "Athletic"],
-        index=3
+        ["Curvy", "Athletic / Muscular", "Straight / Slender", "Full Figured", "Petite Frame"],
+        index=2
     )
     
     # --- Fit Challenge Selector ---
@@ -115,33 +116,32 @@ with st.sidebar:
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
 st.divider()
 
-# Create two columns for the Product View
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- NEW: Real Image of a Fleece/Sweatshirt ---
-    # Using a reliable Unsplash ID for a grey hoodie/sweatshirt vibe
-    st.image("https://images.unsplash.com/photo-1556906781-9a412961d289?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
-             caption="Product ID: SCUBA-HZ-001",
-             use_container_width=True)
+    # --- NEW: Updated Image (Grey Sweatshirt/Fleece vibe) ---
+    st.image(
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop", 
+        caption="Product ID: SCUBA-HZ-001",
+        use_container_width=True
+    )
 
 with col2:
     st.title("Oversized Fleece Half-Zip")
     st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
     
-    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.")
+    st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable and soft against your skin.")
     
     st.write("**Size**")
     size = st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
     
     st.button("Add to Bag")
 
-    # Spacer
     st.write("") 
     st.write("") 
 
     # ---------------------------------------------------------
-    # 5. INTELLIGENCE SECTION (The Expandable Box)
+    # 5. INTELLIGENCE SECTION
     # ---------------------------------------------------------
     with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
         st.caption(f"Analyzing for: {height} | {body_type} | {', '.join(selected_challenges)}")
@@ -155,13 +155,14 @@ with col2:
                 **Fit Alert:**
                 
                 Based on the user profile provided ({body_type}, {', '.join(selected_challenges)}), the target product - Scuba Oversized Half-Zip Hoodie - 
-                may not be an ideal fit. This hoodie is designed to be short in the body, so it might not 
-                accommodate a user with a **Long Torso** very well.
+                may not be an ideal fit.
                 
+                This hoodie is designed to be short/cropped in the body, so it might not accommodate a user with a **Long Torso** very well.
+                
+                **Recommendation:**
                 As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0. Its slim fit design 
                 should work well with your body type.
                 """
             )
             
             st.button("👉 Shop Recommended Alternative")
-        
