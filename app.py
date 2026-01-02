@@ -14,22 +14,24 @@ load_dotenv()
 if "current_product_key" not in st.session_state:
     st.session_state.current_product_key = "scuba_hoodie"
 
-# --- UPDATED DATABASE (High-Availability Amazon Images) ---
+# --- UPDATED DATABASE (New Header & Description) ---
 PRODUCT_DB = {
     "scuba_hoodie": {
-        "name": "Oversized Fleece Half-Zip",
+        # UPDATED: Changed name to "Hoodie"
+        "name": "Oversized Fleece Hoodie",
         "price": "$118.00",
-        "desc": "The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.",
-        # Amazon CDN: Beige Half-Zip Fleece (Specific Match)
-        "image": "https://m.media-amazon.com/images/I/71zNw+jI9AL._AC_SY879_.jpg",
-        "id": "SCUBA-HZ-001"
+        # UPDATED: Description matches a hoodie
+        "desc": "The ultimate post-workout layer. Soft cotton-blend fleece with a cozy hood and kangaroo pocket.",
+        # Pexels: Woman in Beige Hoodie (Verified)
+        "image": "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "id": "SCUBA-HD-001"
     },
     "define_jacket": {
         "name": "Define Jacket Luon",
         "price": "$118.00",
         "desc": "Cottony-soft Luon™ fabric is sweat-wicking and four-way stretch. Added Lycra™ fibre for shape retention.",
-        # Amazon CDN: Black Athletic Jacket (Specific Match)
-        "image": "https://m.media-amazon.com/images/I/61N+V2p1o+L._AC_UY1000_.jpg",
+        # Pexels: Woman in Black Athletic Jacket (Verified)
+        "image": "https://images.pexels.com/photos/4132651/pexels-photo-4132651.jpeg?auto=compress&cs=tinysrgb&w=800",
         "id": "DEFINE-JKT-009"
     }
 }
@@ -176,7 +178,6 @@ if mode == "🛍️ Retail Storefront (Demo)":
         
         # THE WIDGET
         with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
-            # SAFE CAPTION LOGIC (Prevents Syntax Errors)
             challenges_text = ", ".join(sim_challenges) if sim_challenges else "None"
             st.caption(f"Analyzing for: **{sim_height}** | **{challenges_text}**")
             
@@ -216,6 +217,6 @@ else:
     if st.button("Send Mock Request"):
         st.code(json.dumps({
             "endpoint": "POST /v1/analyze_fit",
-            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HZ-001"}
+            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HD-001"}
         }, indent=2), language="json")
         st.code(json.dumps({"status": "success", "message": "High Risk: Torso Length Mismatch"}, indent=2), language="json")
