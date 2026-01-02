@@ -52,18 +52,28 @@ FIT_CHALLENGES = [
 ]
 
 def handle_fit_challenge_change():
+    """
+    Ensures 'None' is mutually exclusive from other options.
+    """
     current = st.session_state.fit_challenges_selector
     previous = st.session_state.get('previous_selection', ['None'])
 
+    # 1. If selection is empty, force default to "None"
     if not current:
         st.session_state.fit_challenges_selector = ["None"]
+        
+    # 2. If "None" was just selected, clear everything else
     elif "None" in current and "None" not in previous:
         st.session_state.fit_challenges_selector = ["None"]
+        
+    # 3. If a specific trait was selected, remove "None"
     elif "None" in current and len(current) > 1:
         st.session_state.fit_challenges_selector = [x for x in current if x != "None"]
 
+    # Update history tracking
     st.session_state.previous_selection = st.session_state.fit_challenges_selector
 
+# Initialize session state for history
 if 'previous_selection' not in st.session_state:
     st.session_state.previous_selection = ['None']
 
@@ -93,7 +103,7 @@ with st.sidebar:
     selected_challenges = st.multiselect(
         label="Fit Challenges",
         options=FIT_CHALLENGES,
-        default=["None"], 
+        default=["None"],  # <--- Defaults to None on refresh
         key="fit_challenges_selector",
         on_change=handle_fit_challenge_change,
         label_visibility="collapsed"
@@ -120,10 +130,11 @@ st.divider()
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    # --- UPDATED IMAGE: Front-facing woman of color in grey hoodie ---
+    # --- UPDATED IMAGE: Pexels Source (High Stability) ---
+    # Woman of color, front facing, grey hoodie
     st.image(
-        "https://images.unsplash.com/photo-1588173811931-d8d45620b557?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        caption="Product ID: SCUBA-HZ-001 | Model shown in oversized fit",
+        "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+        caption="Product ID: SCUBA-HZ-001 | Oversized Fit shown on model",
         use_container_width=True
     )
 
