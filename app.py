@@ -207,9 +207,9 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # UPDATED IMAGE: Verified Pexels ID 4066288 (Woman of Color, Grey Zip-Up Hoodie)
+        # UPDATED IMAGE: Unsplash source (Stable) - Woman in Grey Zip-Up
         st.image(
-            "https://images.pexels.com/photos/4066288/pexels-photo-4066288.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+            "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
