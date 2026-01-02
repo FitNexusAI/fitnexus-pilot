@@ -158,4 +158,32 @@ if mode == "🛍️ Retail Storefront (Demo)":
             
             if st.button("Run Analysis"):
                 with st.spinner("Processing technical specs..."):
-                    res
+                    res = st.session_state.engine.analyze_fit(q, user_data, forced_product_context=DISPLAYED_PRODUCT_NAME)
+                    
+                    # We use distinct colors for Recommendations vs Warnings
+                    if "recommend" in res['analysis'].lower() and "instead" in res['analysis'].lower():
+                        st.warning(f"**Fit Alert:**\n\n{res['analysis']}")
+                    else:
+                        st.success(f"**Fit Confirmation:**\n\n{res['analysis']}")
+
+# --- MODE 2: API VIEW ---
+else:
+    st.title("⚡ FitNexus API Console")
+    st.markdown("### Developer Documentation")
+    st.markdown("Send us user biometrics + product SKUs, we return fit risk analysis.")
+    
+    if st.button("Send Mock Request"):
+        st.code(json.dumps({
+            "endpoint": "POST /v1/analyze_fit",
+            "header": {"Authorization": "Bearer sk_live_..."},
+            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HZ-001"}
+        }, indent=2), language="json")
+        
+        with st.spinner("Computing..."):
+            res = st.session_state.engine.analyze_fit("fit check", user_data, forced_product_context="Oversized Fleece Half-Zip")
+            
+        st.code(json.dumps({
+            "status": "success",
+            "cross_sell_opportunity": True if "instead" in res['analysis'] else False,
+            "message": res['analysis']
+        }, indent=2), language="json")
