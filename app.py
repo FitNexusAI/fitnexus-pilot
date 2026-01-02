@@ -1,13 +1,12 @@
 import streamlit as st
 import os
 import csv
-import pandas as pd
 from datetime import datetime
 from fit_engine import FitNexusAgent
 
 st.set_page_config(page_title="FitNexus Pilot", page_icon="🛍️", layout="wide")
 
-# --- 1. SETUP LOGGING ---
+# --- 1. SETUP LOGGING (Runs silently in background) ---
 log_file_path = "fitnexus_usage_log.csv"
 
 # Ensure file exists with headers
@@ -17,7 +16,7 @@ if not os.path.exists(log_file_path):
         writer.writerow(["Timestamp", "Height", "Size", "Preference", "Challenges", "User_Query", "Product_Recommended", "AI_Advice"])
 
 # --- 2. INITIALIZE BRAIN ---
-if "agent_v4" not in st.session_state: # bumped to v4 to clear cache
+if "agent_v4" not in st.session_state:
     st.session_state.agent_v4 = FitNexusAgent()
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -37,7 +36,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Admin Tools
+    # Admin Tools (Only you need to click this)
     st.markdown("### 📊 Admin Tools")
     if st.button("🔄 Refresh Logs"):
         st.rerun()
@@ -70,7 +69,7 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
             else:
                 st.markdown(result["text"])
             
-            # --- LOGGING ACTION ---
+            # --- SILENT LOGGING ---
             try:
                 with open(log_file_path, mode='a', newline='') as f:
                     writer = csv.writer(f)
@@ -82,18 +81,9 @@ if prompt := st.chat_input("Ex: 'Will the hoodie fit me?'"):
                         result.get("product_name", "None"), 
                         result["text"]
                     ])
-                st.success("✅ Interaction Logged!") 
+                # Removed the "Success!" popup so it feels seamless to the user
             except Exception as e:
-                st.error(f"Log Error: {e}")
+                # We still print errors to the console just in case
+                print(f"Log Error: {e}")
 
     st.session_state.messages.append({"role": "assistant", "content": result["text"]})
-
-# --- 5. LIVE DEBUGGER (Verify Data Exists) ---
-st.divider()
-st.markdown("### 🕵️‍♀️ Live Data Preview (Debug)")
-if os.path.exists(log_file_path):
-    try:
-        df = pd.read_csv(log_file_path)
-        st.dataframe(df) # Shows the actual table on screen
-    except:
-        st.write("Log file exists but is empty.")
