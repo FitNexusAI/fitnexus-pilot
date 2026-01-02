@@ -27,11 +27,16 @@ class FitNexusEngine:
         except:
             st.error("SYSTEM ERROR: Check API Key.")
 
-    def analyze_fit(self, query, user_profile):
+    def analyze_fit(self, query, user_profile, forced_product_context=None):
         if self.catalog.empty: return {"error": "Catalog disconnected"}
         
-        # Search Logic
-        clean_query = query.lower().translate(str.maketrans('', '', string.punctuation))
+        # 1. SEARCH LOGIC
+        # If we are in "Storefront Mode", we force the search to find the displayed product first.
+        search_query = query
+        if forced_product_context:
+            search_query += f" {forced_product_context}"
+            
+        clean_query = search_query.lower().translate(str.maketrans('', '', string.punctuation))
         scored = []
         for _, row in self.catalog.iterrows():
             text = f"{row.get('name','')} {row.get('description','')} {row.get('fit_type','')}".lower()
@@ -39,18 +44,22 @@ class FitNexusEngine:
             if score > 0: scored.append((score, row))
         
         scored.sort(key=lambda x: x[0], reverse=True)
+        
+        # FAIL-SAFE: If no match found (shouldn't happen with forced context), pick top items
         products = [item[1] for item in scored] if scored else [r for _, r in self.catalog.iterrows()][:4]
 
-        # AI Analysis
-        context = "\n".join([f"- {p['name']} ({p['fit_type']}): {p['fit_advice']}" for p in products[:4]])
+        # 2. AI ANALYSIS
+        # We only send the top 3 relevant items to keep focus tight
+        context = "\n".join([f"- {p['name']} ({p['fit_type']}): {p['fit_advice']}" for p in products[:3]])
         
         system_prompt = (
             "You are the FitNexus API. Analyze the User Profile vs Product Data. "
-            "Output a short, decisive recommendation for the shopper. "
+            "If a specific product is mentioned or implied (like 'this hoodie'), prioritize that item heavily. "
+            "Output a short, decisive recommendation for the shopper regarding THAT item. "
             "Focus on technical fit (stretch, cut, fabric). "
             "If the user has multiple challenges, explain how they interact."
         )
-        user_msg = f"Profile: {user_profile}\nQuery: {query}\nInventory:\n{context}"
+        user_msg = f"Profile: {user_profile}\nQuery: {query}\nInventory Data (Focus on top item):\n{context}"
         
         response = self.client.chat.completions.create(
             model="gpt-4",
@@ -72,21 +81,19 @@ with st.sidebar:
     mode = st.radio("Select Demo Mode:", ["🛍️ Retail Storefront (Demo)", "👨‍💻 API Developer View"])
     st.divider()
     
-    # --- GRANULAR CONTROLS ---
     st.subheader("Simulated Shopper Context")
     st.caption("Combine parameters to test complex edge cases.")
     
     # 1. Height
     sim_height = st.selectbox("Height", ["< 5'3", "5'3 - 5'7", "5'8 - 6'0", "> 6'0"], index=2)
     
-    # 2. Multi-Select Challenges (UPDATED)
+    # 2. Multi-Select Challenges
     sim_challenges = st.multiselect(
         "Fit Challenges (Select multiple)", 
         ["Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Large Bust", "Small Bust", "Wide Hips", "Narrow Hips", "Thick Thighs", "Sensitive Skin"],
         default=[]
     )
     
-    # Construct Profile
     user_data = {
         "height": sim_height, 
         "challenges": sim_challenges if sim_challenges else ["None"]
@@ -102,11 +109,14 @@ if mode == "🛍️ Retail Storefront (Demo)":
     
     col1, col2 = st.columns([1, 2])
     
+    # Define the displayed product explicitly
+    DISPLAYED_PRODUCT_NAME = "Oversized Fleece Half-Zip"
+    
     with col1:
         st.image("https://images.lululemon.com/is/image/lululemon/LW3DM4S_032489_1?wid=750&op_usm=0.8,1,10,0&fmt=webp&qlt=80,1&fit=constrain,0&op_sharpen=0&resMode=sharp2&iccEmbed=0&printRes=72", caption="Product ID: SCUBA-HZ-001")
     
     with col2:
-        st.subheader("Oversized Fleece Half-Zip")
+        st.subheader(DISPLAYED_PRODUCT_NAME)
         st.write("⭐⭐⭐⭐⭐ (4.8) | **$118.00**")
         st.write("The ultimate post-workout layer. Cotton-blend fleece fabric is naturally breathable.")
         
@@ -124,7 +134,6 @@ if mode == "🛍️ Retail Storefront (Demo)":
         """, unsafe_allow_html=True)
         
         with st.expander("📐 FitNexus Intelligence (Check My Fit)"):
-            # Dynamic display of current user context
             if sim_challenges:
                 st.write(f"Analyzing for: **{sim_height}** with **{', '.join(sim_challenges)}**")
             else:
@@ -133,8 +142,9 @@ if mode == "🛍️ Retail Storefront (Demo)":
             q = st.text_input("Ask a question:", value="Will this fit my body type?")
             
             if st.button("Run Analysis"):
-                with st.spinner("Processing biometrics..."):
-                    res = st.session_state.engine.analyze_fit(q, user_data)
+                with st.spinner("Processing technical specs..."):
+                    # FIX: We now pass the displayed product name to force the context
+                    res = st.session_state.engine.analyze_fit(q, user_data, forced_product_context=DISPLAYED_PRODUCT_NAME)
                     st.success(f"**Recommendation:**\n\n{res['analysis']}")
 
 # --- MODE 2: API VIEW ---
@@ -144,7 +154,6 @@ else:
     st.markdown("Send us user biometrics + product SKUs, we return fit risk analysis.")
     
     if st.button("Send Mock Request"):
-        # The JSON updates dynamically based on multi-select
         st.code(json.dumps({
             "endpoint": "POST /v1/analyze_fit",
             "header": {"Authorization": "Bearer sk_live_..."},
@@ -152,7 +161,8 @@ else:
         }, indent=2), language="json")
         
         with st.spinner("Computing..."):
-            res = st.session_state.engine.analyze_fit("fit check", user_data)
+            # Also force context here so the mock API response is accurate
+            res = st.session_state.engine.analyze_fit("fit check", user_data, forced_product_context="Oversized Fleece Half-Zip")
             
         st.code(json.dumps({
             "status": "success",
