@@ -207,9 +207,9 @@ if st.session_state.view_mode == 'original':
 # =========================================================
 else:
     with col1:
-        # UPDATED IMAGE: Same model, but showing the longer zip-up fit clearly.
+        # UPDATED IMAGE: Clear Grey Zip-Up Hoodie
         st.image(
-            "https://images.pexels.com/photos/7242945/pexels-photo-7242945.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+            "https://images.pexels.com/photos/6311612/pexels-photo-6311612.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             caption="Product ID: LNG-ZIP-009 | Model wearing Longline Zip-Up",
             use_container_width=True
         )
