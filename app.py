@@ -177,43 +177,4 @@ if mode == "🛍️ Retail Storefront (Demo)":
         
         # THE WIDGET
         with st.expander("📐 FitNexus Intelligence (Check My Fit)", expanded=True):
-            st.caption(f"Analyzing for: **{sim_height}** | **{', '.join(sim_challenges)}**")
-            q = st.text_input("Ask a question:", value="Will this fit my body type?")
-            
-            if st.button("Run Analysis"):
-                with st.spinner("Processing technical specs..."):
-                    st.session_state.last_result = st.session_state.engine.analyze_fit(q, user_data, forced_product_context=current_item["name"])
-            
-            if "last_result" in st.session_state:
-                res = st.session_state.last_result
-                text_lower = res['analysis'].lower()
-                
-                # Pivot Logic
-                is_pivot = (
-                    "alternative" in text_lower or 
-                    "instead" in text_lower or 
-                    ("not a good fit" in text_lower and "recommend" in text_lower)
-                )
-                
-                if is_pivot:
-                    st.warning(f"**Fit Alert:**\n\n{res['analysis']}")
-                    
-                    # --- THE MAGIC BUTTON ---
-                    if st.session_state.current_product_key != "define_jacket":
-                        if st.button("👉 Shop Recommended Alternative (Define Jacket)", type="primary", use_container_width=True):
-                            st.session_state.current_product_key = "define_jacket"
-                            del st.session_state.last_result 
-                            st.rerun()
-                else:
-                    st.success(f"**Fit Confirmation:**\n\n{res['analysis']}")
-
-# --- MODE 2: API VIEW ---
-else:
-    st.title("⚡ FitNexus API Console")
-    st.markdown("### Developer Documentation")
-    if st.button("Send Mock Request"):
-        st.code(json.dumps({
-            "endpoint": "POST /v1/analyze_fit",
-            "payload": {"user_profile": user_data, "product_sku": "SCUBA-HZ-001"}
-        }, indent=2), language="json")
-        st.code(json.dumps({"status": "success", "message": "High Risk: Torso Length Mismatch"}, indent=2), language="json")
+            st.caption(f"Analyzing for: **{sim_height}** | **{', '.join(sim_
