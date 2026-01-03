@@ -35,15 +35,11 @@ st.markdown(
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
+if 'analysis_run' not in st.session_state:
+    st.session_state.analysis_run = False
+
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
-
-FIT_OPTIONS = [
-    "None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders",
-    "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", 
-    "Soft Midsection", "Curvy Hips", "Wide Hips", "Narrow Hips", "High Hip Shelf", 
-    "Athletic Thighs", "Long Legs", "Short Legs", "Muscular Calves"
-]
 
 def sync_logic():
     current = st.session_state.challenge_widget
@@ -60,6 +56,7 @@ def sync_logic():
 
 def reset_demo_state():
     st.session_state.view_mode = 'original'
+    st.session_state.analysis_run = False
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
     st.session_state.b_key = ""
@@ -79,6 +76,8 @@ with st.sidebar:
     st.subheader("Shopper Profile")
     h_val = st.selectbox("Height", ["", "Under 5'0", "5'0-5'2", "5'3-5'7", "5'8-5'11", "Over 6'0"], index=0, key="h_key")
     b_val = st.selectbox("Body Type", ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0, key="b_key")
+    
+    FIT_OPTIONS = ["None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", "Soft Midsection", "Curvy Hips", "Wide Hips", "Narrow Hips", "High Hip Shelf", "Athletic Thighs", "Long Legs", "Short Legs", "Muscular Calves"]
     
     st.multiselect("Fit Challenges", options=FIT_OPTIONS, key="challenge_widget", 
                    default=st.session_state.challenges_selection, on_change=sync_logic)
@@ -121,22 +120,23 @@ if st.session_state.view_mode == 'original':
             st.text_input("Ask a question:", "Will this fit my body type?", key="q_box")
             
             if st.button("Run Analysis"):
+                st.session_state.analysis_run = True
+            
+            if st.session_state.analysis_run:
                 if not real_issues:
                     st.success("Analysis complete: This item is a high-confidence match for your profile.")
                 else:
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
-                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up. It should provide a more comfortable and defined fit for your body type.")
+                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up.")
                     
-                    # FIXED LOGIC: Button explicitly sets state and reruns
+                    # BUTTON IS NOW STABLE OUTSIDE NESTED CALLBACKS
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
-    # Trigger the scroll to top only when entering alternative view
     scroll_to_top()
-    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -148,23 +148,15 @@ else:
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"): st.balloons()
         
-        # Back button explicitly sets state back to original
         if st.button("← Back to Original Item"):
             st.session_state.view_mode = 'original'
+            st.session_state.analysis_run = False
             st.rerun()
 
 # 5. ENTERPRISE FAQ SECTION
 st.divider()
 st.subheader("Enterprise Integration FAQ")
-
 with st.expander("How long does a standard integration take?"):
-    st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks. Custom enterprise styling and full CRM data syncing typically takes 4–6 weeks.")
-
-with st.expander("Does this require shoppers to create a FitNexus account?"):
-    st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value, or sync with your existing loyalty program to save shopper profiles for future visits.")
-
+    st.write("Our lightweight API-first architecture allows for a basic integration in as little as 2 weeks.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
-    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
-
-with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for providing fit recommendations.")
+    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns.")
