@@ -48,21 +48,22 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo_state():
-    """FACTORY RESET: Returns everything to a blank, original state."""
+    """REFACTORED RESET: Updates state directly to avoid the 'no-op' callback error."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
     st.session_state.b_key = ""
+    # Explicitly reset the multiselect widget key
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
 # 3. SIDEBAR (FitNexus Branded)
 with st.sidebar:
-    # Matches the 'logo.png' in your local directory and GitHub root
+    # Verified logo file from local directory
     try:
         st.image("logo.png", use_container_width=True)
     except:
-        st.markdown('<p class="logo-text">⚡ FitNexusAI</p>', unsafe_allow_html=True)
+        st.markdown('<p class="logo-text">Fitnexus Ai</p>', unsafe_allow_html=True)
     
     st.caption("AI-Powered Fit Intelligence | v2.1.0")
     st.divider()
