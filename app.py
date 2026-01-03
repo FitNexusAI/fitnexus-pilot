@@ -1,31 +1,24 @@
 import streamlit as st
+from PIL import Image
 import streamlit.components.v1 as components
 
-# 1. PAGE CONFIG & CUSTOM CSS
+# 1. PAGE CONFIG (Must be the very first Streamlit command)
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
 
-import streamlit as st
-from PIL import Image
-
-# 1. PAGE CONFIG & CUSTOM CSS
-st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
-
-# --- THE LOGO FIX ---
-# Load and display the logo in the sidebar
-# --- THE LOGO FIX ---
-# Load and display the logo. Remove the st.sidebar.title line if you have one.
+# 2. THE LOGO FIX
 try:
     logo = Image.open('logo.png')
-    st.sidebar.image(logo, use_container_width=True) # This ensures it fits the sidebar perfectly
+    st.sidebar.image(logo, use_container_width=True)
 except FileNotFoundError:
-    st.sidebar.title("Fitnexus Ai") # Fallback text only if image is missing
+    st.sidebar.title("Fitnexus Ai")
     st.sidebar.error("Logo file not found in root directory.")
-# --- THE STABLE SCROLL FIX ---
+
+# 3. THE STABLE SCROLL FIX
 if st.session_state.get('view_mode') == 'alternative':
     components.html(
         """
         <script>
-            window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'instant' });
+        window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'instant' });
         </script>
         """,
         height=0,
