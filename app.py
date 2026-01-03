@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import os
 
 # 1. PAGE CONFIG (Must be the very first Streamlit command)
-st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
+st.set_page_config(layout="wide", page_title="FitNexusAI | Retail Integration Demo")
 
  # 2. THE LOGO FIX
 try:
@@ -14,8 +14,7 @@ try:
     logo = Image.open(logo_path)
     st.sidebar.image(logo, use_container_width=True)
 except Exception as e:
-    st.sidebar.title("FitNexus Ai")
-    st.sidebar.error("Branding logo not found.")
+    st.sidebar.title("FitNexusAi")
 
 # 3. THE STABLE SCROLL FIX
 if st.session_state.get('view_mode') == 'alternative':
@@ -73,4 +72,4 @@ with col2:
     st.text_input("Ask a question:")
 
 # 6. POWERED BY TAG
-st.markdown('<div class="powered-by">Powered by FitNexus AI v2.1.0</div>', unsafe_allow_html=True)
+st.markdown('<div class="powered-by">Powered by FitNexusAI v2.1.0</div>', unsafe_allow_html=True)
