@@ -6,12 +6,13 @@ import streamlit.components.v1 as components
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
 
 # 2. THE LOGO FIX
+# This block pulls the image and places it in the sidebar
 try:
     logo = Image.open('logo.png')
     st.sidebar.image(logo, use_container_width=True)
-except FileNotFoundError:
+except Exception as e:
     st.sidebar.title("Fitnexus Ai")
-    st.sidebar.error("Logo file not found in root directory.")
+    st.sidebar.write("Logo status: File not found or corrupt.")
 
 # 3. THE STABLE SCROLL FIX
 if st.session_state.get('view_mode') == 'alternative':
