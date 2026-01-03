@@ -33,7 +33,7 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
-    """STRICT MUTUAL EXCLUSION: Ensures 'None' and challenges never coexist."""
+    """Ensures 'None' and specific challenges never coexist."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -47,7 +47,7 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo():
-    """FULL FACTORY RESET: Clears images, logic, and dropdowns."""
+    """Wipes shopper data and returns to original view."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
     if 'h_key' in st.session_state: st.session_state.h_key = ""
@@ -59,7 +59,6 @@ with st.sidebar:
     st.header("FitNexus Engine")
     st.caption("v2.1.0 | Enterprise Retail Build")
     st.divider()
-    st.subheader("Simulated Shopper Context")
     
     h_val = st.selectbox("Height", ["", "Under 5'0", "5'0-5'2", "5'3-5'7", "5'8-5'11", "Over 6'0"], index=0, key="h_key")
     b_val = st.selectbox("Body Type", ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0, key="b_key")
@@ -85,15 +84,16 @@ col1, col2 = st.columns([1, 1])
 if st.session_state.view_mode == 'original':
     with col1:
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-                 caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up", use_container_width=True)
+                 caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
+        # RESTORED CONFIDENCE BADGE
         if not real_issues and h_val and b_val:
             st.success("🎯 FitNexus Confidence: 94% Match")
 
-        st.write("A versatile layer for seasonal transitions. Features a smooth full-length zipper and soft, insulating fabric.")
+        st.write("A versatile layer with a smooth full-length zipper and soft, insulating fabric.")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
         st.button("Add to Bag")
 
@@ -105,31 +105,32 @@ if st.session_state.view_mode == 'original':
                 if not real_issues:
                     st.success("Analysis complete: High-confidence match for your standard profile.")
                 else:
+                    # RESTORED EXHAUSTIVE ANALYSIS
                     analysis_points = []
                     if "Long Torso" in real_issues:
-                        analysis_points.append("- **Torso Length:** This jacket has a standard 22\" cut. On a **Long Torso**, the hem will sit above the hip, potentially causing it to ride up.")
+                        analysis_points.append("- **Hem Alignment:** This 22\" cut will likely sit above the hip line on a **Long Torso**, causing the jacket to ride up during movement.")
                     if "Broad Shoulders" in real_issues:
-                        analysis_points.append("- **Shoulder Width:** The high-collar construction has reinforced seams. For **Broad Shoulders**, this may cause pulling across the upper back.")
-                    if "Short Torso" in real_issues:
-                        analysis_points.append("- **Proportions:** The mid-section may bunch at the zipper line for a **Short Torso** profile.")
+                        analysis_points.append("- **Sleeve Tension:** Reinforced collar seams may cause tension pulling across the upper back for **Broad Shoulders**.")
                     if "Curvy Hips" in real_issues or "Wide Hips" in real_issues:
-                        analysis_points.append("- **Hem Opening:** This jacket features a tapered hem. On **Curvy Hips**, the fabric may feel restrictive when fully zipped.")
+                        analysis_points.append("- **Bottom Opening:** The tapered hem binding is not engineered for **Curvy Hips**, which may cause restrictive 'shelving'.")
                     
-                    if not analysis_points:
-                        analysis_points.append(f"- The specific combination of {', '.join(real_issues)} suggests this standard cut may not provide the optimal comfort you are looking for.")
-
-                    st.warning("**Fit Analysis Results:**\n\n" + "\n".join(analysis_points))
+                    st.warning("**Comprehensive Fit Analysis:**\n\n" + "\n".join(analysis_points))
+                    
+                    # RESTORED ALTERNATIVE RECOMMENDATION
+                    st.info(f"💡 **Recommendation:** For your {b_val} profile, we recommend the **CloudSoft Longline Zip-Up**. Its 3\" extended hem and dropped shoulders solve these specific tension points.")
+                    
                     st.button("👉 Shop Recommended Alternative", on_click=lambda: st.session_state.update({"view_mode": "alternative"}))
 
 else:
     with col1:
         st.image("https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
-                 caption="Product ID: LNG-ZIP-009 | CloudSoft Longline", use_container_width=True)
+                 caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
+        # RESTORED ALTERNATIVE CONFIDENCE BADGE
         st.success("🏆 FitNexus Confidence: 98% Match for your profile")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write(f"Designed with an extended hemline and full-length zipper specifically to accommodate {', '.join(real_issues) if real_issues else 'your fit profile'}.")
+        st.write(f"Designed with an extended hemline specifically to accommodate {', '.join(real_issues) if real_issues else 'your unique fit profile'}.")
         
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"): st.balloons()
