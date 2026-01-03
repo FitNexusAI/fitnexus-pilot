@@ -1,7 +1,19 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
+
+# Helper function to force browser scroll to top via JS
+def scroll_to_top():
+    components.html(
+        """
+        <script>
+            window.parent.document.querySelector('section.main').scrollTo(0, 0);
+        </script>
+        """,
+        height=0,
+    )
 
 st.markdown(
     """
@@ -19,7 +31,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. STATE MANAGEMENT & EXCLUSIVE LOGIC
+# 2. STATE MANAGEMENT
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
@@ -34,7 +46,6 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
-    """STRICT MUTUAL EXCLUSION: Ensures 'None' and specific challenges never coexist."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -48,18 +59,19 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo_state():
-    """REFACTORED RESET: Updates state directly to avoid the 'no-op' callback error."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
     st.session_state.b_key = ""
-    # Explicitly reset the multiselect widget key to clear tags visually
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (FitNexus Branded)
+# Trigger scroll if we are in alternative mode
+if st.session_state.view_mode == 'alternative':
+    scroll_to_top()
+
+# 3. SIDEBAR
 with st.sidebar:
-    # Verified logo file from local directory
     try:
         st.image("logo.png", use_container_width=True)
     except:
@@ -82,10 +94,9 @@ with st.sidebar:
             f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
     
     st.divider()
-    # Reset button triggers state update; Streamlit handles the refresh automatically
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
-# 4. MAIN CONTENT (Retailer Branded)
+# 4. MAIN CONTENT
 st.subheader("🛒 Premium Activewear Co.")
 st.caption("Official Retail Partner Integration")
 st.divider()
@@ -120,7 +131,11 @@ if st.session_state.view_mode == 'original':
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up. It should provide a more comfortable and defined fit for your body type.")
-                    st.button("👉 Shop Recommended Alternative", on_click=lambda: st.session_state.update({"view_mode": "alternative"}))
+                    
+                    # Updated button to change mode
+                    if st.button("👉 Shop Recommended Alternative"):
+                        st.session_state.view_mode = 'alternative'
+                        st.rerun()
 
 else:
     with col1:
@@ -133,7 +148,11 @@ else:
         st.write(f"Designed with a longer profile specifically to accommodate **{', '.join(real_issues)}**. This style ensures comfort and coverage that moves with you.")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"): st.balloons()
-        st.button("← Back to Original Item", on_click=lambda: st.session_state.update({"view_mode": "original"}))
+        
+        # Back button resets mode
+        if st.button("← Back to Original Item"):
+            st.session_state.view_mode = 'original'
+            st.rerun()
 
 # 5. ENTERPRISE FAQ SECTION
 st.divider()
@@ -145,7 +164,6 @@ with st.expander("How long does a standard integration take?"):
 with st.expander("Does this require shoppers to create a FitNexus account?"):
     st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value, or sync with your existing loyalty program to save shopper profiles for future visits.")
 
-# UPDATED: GENERAL STATEMENT
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
 
