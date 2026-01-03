@@ -66,10 +66,6 @@ def reset_demo_state():
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
-# Trigger scroll if we are in alternative mode
-if st.session_state.view_mode == 'alternative':
-    scroll_to_top()
-
 # 3. SIDEBAR
 with st.sidebar:
     try:
@@ -132,12 +128,15 @@ if st.session_state.view_mode == 'original':
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up. It should provide a more comfortable and defined fit for your body type.")
                     
-                    # Updated button to change mode
+                    # FIXED LOGIC: Button explicitly sets state and reruns
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
+    # Trigger the scroll to top only when entering alternative view
+    scroll_to_top()
+    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -149,7 +148,7 @@ else:
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"): st.balloons()
         
-        # Back button resets mode
+        # Back button explicitly sets state back to original
         if st.button("← Back to Original Item"):
             st.session_state.view_mode = 'original'
             st.rerun()
