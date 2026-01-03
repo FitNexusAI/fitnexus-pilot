@@ -1,8 +1,10 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
+
+# --- THE ABSOLUTE TOP ANCHOR ---
+st.markdown("<div id='top'></div>", unsafe_allow_html=True)
 
 st.markdown(
     """
@@ -29,7 +31,7 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# TAG SYNC LOGIC (The "None" Fix)
+# TAG SYNC LOGIC
 def sync_logic():
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
@@ -113,23 +115,22 @@ if st.session_state.view_mode == 'original':
                 else:
                     st.warning(f"### Fit Alert: Potential issues with {', '.join(real_issues)}.")
                     st.write("I recommend the **CloudSoft Longline Zip-Up** instead.")
-                    if st.button("👉 Shop Recommended Alternative"):
+                    
+                    # LINK ANCHOR BUTTON FOR RELIABLE SCROLLING
+                    st.markdown(
+                        f"""<a href="#top" target="_self">
+                        <button style="background-color: #F74845; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; height: 45px;">
+                        👉 Shop Recommended Alternative
+                        </button></a>""", 
+                        unsafe_allow_html=True
+                    )
+                    
+                    # Hidden logic to flip state
+                    if st.button("Confirm Selection", key="hidden_trigger"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
-    # --- THE DELAYED SCROLL FIX ---
-    components.html(
-        """
-        <script>
-            setTimeout(function() {
-                window.parent.document.querySelector('section.main').scrollTo(0, 0);
-            }, 10);
-        </script>
-        """,
-        height=0,
-    )
-    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -146,14 +147,12 @@ else:
             st.session_state.analysis_run = False
             st.rerun()
 
-# 5. ENTERPRISE FAQ & FOOTER
+# 5. FAQ & FOOTER
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
     st.write("A basic integration typically takes as little as 2 weeks.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Partners typically see a 25-35% reduction in size-related returns.")
-with st.expander("Is shopper data secure?"):
-    st.write("Absolutely. All data is encrypted and used only for recommendations.")
 
 st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
