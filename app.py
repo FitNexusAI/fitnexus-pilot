@@ -43,6 +43,12 @@ st.markdown(
     footer {visibility: hidden;}
     .logo-text { font-weight: bold; font-size: 24px; color: #333; margin-bottom: 0px; }
     .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
+    .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
+    
+    /*Hides the "Manage app" toolbar */
+    [data-testid="stStatusWidget"] {
+        visibility: hidden;
+    }
     </style>
     """,
     unsafe_allow_html=True,
