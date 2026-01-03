@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus Enterprise Demo")
@@ -19,7 +18,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. STATE MANAGEMENT & LOGIC
+# 2. STATE MANAGEMENT & EXCLUSIVE LOGIC
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
@@ -34,6 +33,7 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
+    """STRICT MUTUAL EXCLUSION: If 'None' is chosen, remove others. If challenges added, remove 'None'."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -47,13 +47,16 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo_state():
+    """FACTORY RESET: Clears all shopper data and returns to original blank state."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
-    st.session_state.h_key = ""
-    st.session_state.b_key = ""
-    st.session_state.challenge_widget = ["None"]
+    # Clearing keys forces selectboxes back to index 0 ("")
+    if 'h_key' in st.session_state: st.session_state.h_key = ""
+    if 'b_key' in st.session_state: st.session_state.b_key = ""
+    if 'challenge_widget' in st.session_state:
+        st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (Consumer View)
+# 3. SIDEBAR (Consumer Facing)
 with st.sidebar:
     st.header("FitNexus Engine")
     st.caption("v2.1.0 | Enterprise Build")
@@ -69,32 +72,14 @@ with st.sidebar:
     active = st.session_state.challenges_selection
     real_issues = [c for c in active if c != "None"]
     
+    # Unified Shopper Context Summary
     st.info(f"**Biometrics:** {h_val if h_val else 'Not Set'}, {b_val if b_val else 'Not Set'}\n\n"
             f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
     
     st.divider()
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
-    # 4. ADMINISTRATOR SECTION (HIDDEN CODE)
-    with st.expander("🔐 Administrator Tools", expanded=False):
-        # We prepare the data in the background
-        shopper_data = {
-            "shopper_biometrics": {"height": h_val, "body_type": b_val},
-            "fit_profile": real_issues,
-            "session_view": st.session_state.view_mode
-        }
-        json_payload = json.dumps(shopper_data, indent=2)
-        
-        # Only the button is shown. No st.write or st.code is used here.
-        st.download_button(
-            label="Export Shopper Data to CRM",
-            data=json_payload,
-            file_name="fitnexus_crm_export.json",
-            mime="application/json",
-            help="Click to simulate an API push of shopper biometrics to the enterprise CRM."
-        )
-
-# 5. MAIN CONTENT
+# 4. MAIN CONTENT
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
 st.divider()
 
@@ -102,12 +87,14 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
+        # Verified Original Hero Image
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
+        # LOGIC: Confidence Badge appears ONLY when no challenges are present
         if h_val and b_val and not real_issues:
              st.success("🎯 FitNexus Confidence: 94% Match")
         elif real_issues:
@@ -125,6 +112,7 @@ if st.session_state.view_mode == 'original':
                 if not real_issues:
                     st.success("Analysis complete: This item is a high-confidence match for your profile.")
                 else:
+                    # HUMANIZED TONE FROM YOUR DESIGN UX
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up. It should provide a more comfortable and defined fit for your body type.")
@@ -132,6 +120,7 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
+        # Verified Specific Image URL for Zip-Up
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
