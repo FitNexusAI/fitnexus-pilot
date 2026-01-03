@@ -63,7 +63,7 @@ def reset_demo_state():
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR
+# 3. SIDEBAR (FitNexus Branded)
 with st.sidebar:
     try:
         st.image("logo.png", use_container_width=True)
@@ -130,13 +130,14 @@ if st.session_state.view_mode == 'original':
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up.")
                     
-                    # Stable CTA Button
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
-    scroll_to_top()
+    # --- AUTO-SCROLL TRIGGER ---
+    scroll_to_top() # Forces browser to top when view switches
+    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -153,18 +154,14 @@ else:
             st.session_state.analysis_run = False
             st.rerun()
 
-# 5. RESTORED FULL ENTERPRISE FAQ SECTION
+# 5. ENTERPRISE FAQ SECTION
 st.divider()
 st.subheader("Enterprise Integration FAQ")
-
 with st.expander("How long does a standard integration take?"):
     st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks. Custom enterprise styling and full CRM data syncing typically takes 4–6 weeks.")
-
 with st.expander("Does this require shoppers to create a FitNexus account?"):
-    st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value, or sync with your existing loyalty program to save shopper profiles for future visits.")
-
+    st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
-
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
     st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for providing fit recommendations.")
