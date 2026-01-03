@@ -44,22 +44,11 @@ st.markdown(
     .logo-text { font-weight: bold; font-size: 24px; color: #333; margin-bottom: 0px; }
     .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
     .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
-   
-   /* This targets the "Manage app" button specifically */
-    .stAppDeployButton {
-        display: none !important;
-    }
-
-    /* This hides the viewer badge and status widget */
+    
+    /*Hides the "Manage app" toolbar */
     [data-testid="stStatusWidget"] {
-        visibility: hidden !important;
-        display: none !important;
+        visibility: hidden;
     }
-
-    /* Hides the main menu and footer */
-    #MainMenu {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
-
     </style>
     """,
     unsafe_allow_html=True,
