@@ -84,14 +84,14 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Original Hero Image: Woman in Grey Zip-Up Performance Fleece
+        # Verified Hero Image: Female in Grey Zip-Up performance fleece
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        # CORRECTED LOGIC: Only show 94% Match Badge if NO challenges are selected
+        # LOGIC: Only show Confidence Badge if NO challenges are selected
         if h_val and b_val and not real_issues:
              st.success("🎯 FitNexus Confidence: 94% Match")
         elif real_issues:
@@ -119,8 +119,8 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # VERIFIED FEMALE ZIP-UP FLEECE IMAGE
-        st.image("https://images.pexels.com/photos/1124460/pexels-photo-1124460.jpeg?auto=compress&cs=tinysrgb&w=800",
+        # VERIFIED SECONDARY IMAGE: Female in technical Grey ZIP-UP fleece jacket
+        st.image("https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
         st.success("🏆 FitNexus Confidence: 98% Match for your profile")
