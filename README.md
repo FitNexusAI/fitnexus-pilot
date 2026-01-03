@@ -22,4 +22,4 @@ FitNexus is a "Context-Aware" Retail AI Agent designed to reduce e-commerce retu
 4.  Observe how the AI adapts its answer based on your specific stats.
 
 ---
-*© 2026 FitNexus Thesis Project*
+*© 2026 FitNexusAI*
