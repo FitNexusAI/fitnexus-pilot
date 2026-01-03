@@ -4,6 +4,12 @@ import streamlit.components.v1 as components
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
 
+def scroll_to_top():
+    components.html(
+        """<script>window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'auto' });</script>""",
+        height=0,
+    )
+
 st.markdown(
     """
     <style>
@@ -29,33 +35,31 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# --- THE FIX: ROBUST AUTO-SCROLL ---
-# This executes as soon as the app reruns in 'alternative' mode
+# Scroll trigger for alternative view
 if st.session_state.view_mode == 'alternative':
-    components.html(
-        """
-        <script>
-            var mainSection = window.parent.document.querySelector('section.main');
-            if (mainSection) {
-                mainSection.scrollTo({ top: 0, behavior: 'auto' });
-            }
-        </script>
-        """,
-        height=0,
-    )
+    scroll_to_top()
 
+# --- FIXED SYNC LOGIC ---
 def sync_logic():
+    """Forces 'None' to disappear when challenges are added, and vice versa."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
+    
     if not current:
-        st.session_state.challenges_selection = ["None"]
+        new_selection = ["None"]
     elif "None" in current and len(current) > 1:
-        if "None" not in previous:
-            st.session_state.challenges_selection = ["None"]
+        # If 'None' was already there and a new item was added, remove 'None'
+        if "None" in previous:
+            new_selection = [x for x in current if x != "None"]
+        # If 'None' was just selected while other items existed, keep only 'None'
         else:
-            st.session_state.challenges_selection = [x for x in current if x != "None"]
+            new_selection = ["None"]
     else:
-        st.session_state.challenges_selection = current
+        new_selection = current
+    
+    # Explicitly update both the state and the widget key
+    st.session_state.challenges_selection = new_selection
+    st.session_state.challenge_widget = new_selection
 
 def reset_demo_state():
     st.session_state.view_mode = 'original'
@@ -63,8 +67,7 @@ def reset_demo_state():
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
     st.session_state.b_key = ""
-    if 'challenge_widget' in st.session_state:
-        st.session_state.challenge_widget = ["None"]
+    st.session_state.challenge_widget = ["None"]
 
 # 3. SIDEBAR
 with st.sidebar:
@@ -82,6 +85,7 @@ with st.sidebar:
     
     FIT_OPTIONS = ["None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", "Soft Midsection", "Curvy Hips", "Wide Hips", "Narrow Hips", "High Hip Shelf", "Athletic Thighs", "Long Legs", "Short Legs", "Muscular Calves"]
     
+    # Multiselect uses the synced state
     st.multiselect("Fit Challenges", options=FIT_OPTIONS, key="challenge_widget", 
                    default=st.session_state.challenges_selection, on_change=sync_logic)
     
@@ -133,7 +137,6 @@ if st.session_state.view_mode == 'original':
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**.")
                     st.write("I recommend the **CloudSoft Longline Zip-Up** instead.")
                     
-                    # SINGLE BUTTON SOLUTION: Removes the 'Confirm' button entirely
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
@@ -159,11 +162,11 @@ else:
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
-    st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks.")
+    st.write("Our lightweight API-first architecture allows for a basic integration in as little as 2 weeks.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns.")
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized.")
+    st.write("Absolutely. FitNexusAI does not store PII unless authorized.")
 
 # 6. ENTERPRISE FOOTER
 st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
