@@ -17,7 +17,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. STATE MANAGEMENT & EXCLUSIVE LOGIC
+# 2. STATE MANAGEMENT & MUTUAL EXCLUSION LOGIC
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
@@ -40,10 +40,10 @@ def sync_logic():
     if not current:
         st.session_state.challenges_selection = ["None"]
     elif "None" in current and len(current) > 1:
-        # If 'None' was just added, clear everything else
+        # If 'None' was just added by the user, clear everything else
         if "None" not in previous:
             st.session_state.challenges_selection = ["None"]
-        # If a challenge was added to 'None', remove 'None'
+        # If a challenge was added while 'None' was there, remove 'None'
         else:
             st.session_state.challenges_selection = [x for x in current if x != "None"]
     else:
@@ -53,9 +53,11 @@ def reset_demo():
     """FULL FACTORY RESET"""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
-    # Force reset of keys to clear dropdowns to ""
-    if 'h_key' in st.session_state: st.session_state.h_key = ""
-    if 'b_key' in st.session_state: st.session_state.b_key = ""
+    # We clear the keys of the selectboxes to force them back to index 0 (the blank option)
+    if 'h_key' in st.session_state:
+        st.session_state.h_key = ""
+    if 'b_key' in st.session_state:
+        st.session_state.b_key = ""
     st.rerun()
 
 # 3. SIDEBAR
@@ -66,11 +68,11 @@ with st.sidebar:
     
     st.subheader("Simulated Shopper Context")
     
-    # Dropdowns default to index 0 ("")
+    # Dropdowns default to index 0 ("") for a clean start/reset
     h_val = st.selectbox("Height", ["", "Under 5'0", "5'0-5'2", "5'3-5'7", "5'8-5'11", "Over 6'0"], index=0, key="h_key")
     b_val = st.selectbox("Body Type", ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0, key="b_key")
     
-    # THE WIDGET
+    # THE MULTISELECT WIDGET
     st.multiselect(
         "Fit Challenges",
         options=FIT_OPTIONS,
@@ -98,7 +100,7 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # THE CORRECT HERO IMAGE
+        # RESTORED CORRECT HERO IMAGE
         st.image(
             "https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket",
@@ -130,7 +132,7 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # THE CORRECT SECONDARY ZIP-UP IMAGE
+        # VERIFIED SECONDARY ZIP-UP IMAGE
         st.image(
             "https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
             caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up",
