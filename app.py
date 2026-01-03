@@ -7,14 +7,7 @@ import os
 st.set_page_config(layout="wide", page_title="FitNexusAI | Retail Integration Demo")
 
  # 2. THE LOGO FIX
-try:
-    # Use absolute path to ensure the server finds the file
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    logo_path = os.path.join(current_dir, 'logo.png')
-    logo = Image.open(logo_path)
-    st.sidebar.image(logo, use_container_width=True)
-except Exception as e:
-    st.sidebar.title("FitNexusAI")
+st.sidebar.image("logo.png", use_container_width=True)
 
 # 3. THE STABLE SCROLL FIX
 if st.session_state.get('view_mode') == 'alternative':
