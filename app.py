@@ -14,7 +14,7 @@ try:
     logo = Image.open(logo_path)
     st.sidebar.image(logo, use_container_width=True)
 except Exception as e:
-    st.sidebar.title("FitNexusAi")
+    st.sidebar.title("FitNexusAI")
 
 # 3. THE STABLE SCROLL FIX
 if st.session_state.get('view_mode') == 'alternative':
