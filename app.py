@@ -4,17 +4,6 @@ import streamlit.components.v1 as components
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
 
-# Helper function to force browser scroll to top via JS
-def scroll_to_top():
-    components.html(
-        """
-        <script>
-            window.parent.document.querySelector('section.main').scrollTo(0, 0);
-        </script>
-        """,
-        height=0,
-    )
-
 st.markdown(
     """
     <style>
@@ -26,6 +15,7 @@ st.markdown(
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .logo-text { font-weight: bold; font-size: 24px; color: #333; margin-bottom: 0px; }
+    .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -40,6 +30,21 @@ if 'analysis_run' not in st.session_state:
 
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
+
+# --- AUTO-SCROLL TRIGGER ---
+# Forces the browser to the top of the 'main' section upon re-render
+if st.session_state.view_mode == 'alternative':
+    components.html(
+        """
+        <script>
+            var mainSection = window.parent.document.querySelector('section.main');
+            if (mainSection) {
+                mainSection.scrollTo({ top: 0, behavior: 'instant' });
+            }
+        </script>
+        """,
+        height=0,
+    )
 
 def sync_logic():
     current = st.session_state.challenge_widget
@@ -63,7 +68,7 @@ def reset_demo_state():
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (FitNexus Branded)
+# 3. SIDEBAR
 with st.sidebar:
     try:
         st.image("logo.png", use_container_width=True)
@@ -128,16 +133,13 @@ if st.session_state.view_mode == 'original':
                 else:
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
-                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up.")
+                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**.")
                     
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
-    # --- AUTO-SCROLL TRIGGER ---
-    scroll_to_top() # Forces browser to top when view switches
-    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -145,7 +147,7 @@ else:
         st.success("🏆 FitNexus Confidence: 98% Match for your profile")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write(f"Designed with a longer profile specifically to accommodate **{', '.join(real_issues)}**. This style ensures comfort and coverage that moves with you.")
+        st.write(f"Designed with a longer profile specifically to accommodate **{', '.join(real_issues)}**.")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
         if st.button("Add to Bag"): st.balloons()
         
@@ -158,10 +160,11 @@ else:
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
-    st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks. Custom enterprise styling and full CRM data syncing typically takes 4–6 weeks.")
-with st.expander("Does this require shoppers to create a FitNexus account?"):
-    st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value.")
+    st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
-    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
+    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns.")
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for providing fit recommendations.")
+    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted.")
+
+# 6. ENTERPRISE FOOTER
+st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
