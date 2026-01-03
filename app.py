@@ -19,7 +19,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. STATE MANAGEMENT
+# 2. STATE MANAGEMENT & LOGIC
 if 'view_mode' not in st.session_state:
     st.session_state.view_mode = 'original'
 
@@ -53,7 +53,7 @@ def reset_demo_state():
     st.session_state.b_key = ""
     st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (Consumer Facing + Hidden Admin Tool)
+# 3. SIDEBAR (Consumer View)
 with st.sidebar:
     st.header("FitNexus Engine")
     st.caption("v2.1.0 | Enterprise Build")
@@ -75,24 +75,26 @@ with st.sidebar:
     st.divider()
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
-    # HIDDEN ADMINISTRATOR SECTION
+    # 4. ADMINISTRATOR SECTION (HIDDEN CODE)
     with st.expander("🔐 Administrator Tools", expanded=False):
-        st.caption("Internal Data Export")
+        # We prepare the data in the background
         shopper_data = {
-            "height": h_val,
-            "body_type": b_val,
-            "challenges": real_issues,
-            "recommended_view": st.session_state.view_mode
+            "shopper_biometrics": {"height": h_val, "body_type": b_val},
+            "fit_profile": real_issues,
+            "session_view": st.session_state.view_mode
         }
-        json_string = json.dumps(shopper_data)
+        json_payload = json.dumps(shopper_data, indent=2)
+        
+        # Only the button is shown. No st.write or st.code is used here.
         st.download_button(
-            label="Download CRM Profile (JSON)",
-            data=json_string,
-            file_name="shopper_profile.json",
+            label="Export Shopper Data to CRM",
+            data=json_payload,
+            file_name="fitnexus_crm_export.json",
             mime="application/json",
+            help="Click to simulate an API push of shopper biometrics to the enterprise CRM."
         )
 
-# 4. MAIN CONTENT
+# 5. MAIN CONTENT
 st.subheader("🛒 Premium Activewear Co. (Integration Demo)")
 st.divider()
 
