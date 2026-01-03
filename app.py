@@ -29,22 +29,19 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# --- DUAL-ACTION SCROLL TRIGGER ---
-# This ensures a scroll happens immediately upon entering alternative view
+# --- THE PERMANENT SCROLL FIX ---
+# This JavaScript targets the browser window specifically to ensure it snaps to 0,0
 if st.session_state.view_mode == 'alternative':
     components.html(
         """
         <script>
-            var mainContainer = window.parent.document.querySelector('section.main');
-            if (mainContainer) {
-                mainContainer.scrollTo({ top: 0, behavior: 'instant' });
-            }
+            window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'instant' });
         </script>
         """,
         height=0,
     )
 
-# --- TAG SYNC LOGIC (The "None" Fix) ---
+# --- THE PERMANENT "NONE" TAG FIX ---
 def sync_logic():
     """Removes 'None' if other tags are selected, and ensures tags update visually."""
     current = st.session_state.challenge_widget
@@ -53,7 +50,7 @@ def sync_logic():
     if not current:
         new_selection = ["None"]
     elif "None" in current and len(current) > 1:
-        # If 'None' was there and a new item was added, remove 'None'
+        # If 'None' was already there and a new item was added, remove 'None'
         if "None" in previous:
             new_selection = [x for x in current if x != "None"]
         # If user explicitly selected 'None' while others were present, keep only 'None'
@@ -62,6 +59,7 @@ def sync_logic():
     else:
         new_selection = current
     
+    # Sync both the value and the widget state
     st.session_state.challenges_selection = new_selection
     st.session_state.challenge_widget = new_selection
 
@@ -73,7 +71,7 @@ def reset_demo_state():
     st.session_state.b_key = ""
     st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR
+# 3. SIDEBAR (FitNexus Branded)
 with st.sidebar:
     try:
         st.image("logo.png", use_container_width=True)
@@ -145,7 +143,6 @@ if st.session_state.view_mode == 'original':
                         st.rerun()
 
 else:
-    # ALTERNATIVE VIEW: SNAPS TO TOP
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -162,7 +159,7 @@ else:
             st.session_state.analysis_run = False
             st.rerun()
 
-# 5. FAQ & FOOTER
+# 5. ENTERPRISE FAQ & FOOTER
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
@@ -170,6 +167,6 @@ with st.expander("How long does a standard integration take?"):
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns.")
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. All biometric data is encrypted and used solely for recommendations.")
+    st.write("Absolutely. All biometric data is encrypted and used solely for providing recommendations.")
 
 st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
