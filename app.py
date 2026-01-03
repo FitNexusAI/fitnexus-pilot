@@ -53,7 +53,7 @@ def reset_demo_state():
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
     st.session_state.b_key = ""
-    # Explicitly reset the multiselect widget key
+    # Explicitly reset the multiselect widget key to clear tags visually
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
@@ -82,6 +82,7 @@ with st.sidebar:
             f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
     
     st.divider()
+    # Reset button triggers state update; Streamlit handles the refresh automatically
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
 # 4. MAIN CONTENT (Retailer Branded)
@@ -144,8 +145,9 @@ with st.expander("How long does a standard integration take?"):
 with st.expander("Does this require shoppers to create a FitNexus account?"):
     st.write("No. The demo you see here uses 'Guest Mode.' We can capture biometrics anonymously to provide immediate value, or sync with your existing loyalty program to save shopper profiles for future visits.")
 
+# UPDATED: GENERAL STATEMENT
 with st.expander("How does this impact the Return Rate (RTO)?"):
-    st.write("Retail partners using FitNexusAI typically see a **25-35% reduction in size-related returns**. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
+    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
 
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
     st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for providing fit recommendations.")
