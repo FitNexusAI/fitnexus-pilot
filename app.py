@@ -47,11 +47,15 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo():
-    """Wipes shopper data and returns to original blank state."""
+    """FIXED RESET: Explicitly clears all keys including the multiselect widget."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
+    # Clear dropdown keys
     if 'h_key' in st.session_state: st.session_state.h_key = ""
     if 'b_key' in st.session_state: st.session_state.b_key = ""
+    # CLEAR THE MULTISELECT WIDGET KEY
+    if 'challenge_widget' in st.session_state:
+        st.session_state.challenge_widget = ["None"]
     st.rerun()
 
 # 3. SIDEBAR
@@ -64,12 +68,14 @@ with st.sidebar:
     h_val = st.selectbox("Height", ["", "Under 5'0", "5'0-5'2", "5'3-5'7", "5'8-5'11", "Over 6'0"], index=0, key="h_key")
     b_val = st.selectbox("Body Type", ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], index=0, key="b_key")
     
+    # Multiselect with fixed reset capabilities
     st.multiselect("Fit Challenges", options=FIT_OPTIONS, key="challenge_widget", 
                    default=st.session_state.challenges_selection, on_change=sync_logic)
     
     active = st.session_state.challenges_selection
     real_issues = [c for c in active if c != "None"]
     
+    # Summarized display
     st.info(f"**Biometrics:** {h_val if h_val else 'Not Set'}, {b_val if b_val else 'Not Set'}\n\n"
             f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
     
@@ -90,7 +96,6 @@ if st.session_state.view_mode == 'original':
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        # Badge logic: Only appears if biometrics are set AND no challenges are selected
         if h_val and b_val and not real_issues:
              st.success("🎯 FitNexus Confidence: 94% Match")
         elif real_issues:
@@ -117,7 +122,7 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # FIXED IMAGE: Red-haired woman in charcoal zip-up sweatshirt
+        # Fixed Image from your URL
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
