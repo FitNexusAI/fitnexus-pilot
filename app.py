@@ -1,24 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. PAGE CONFIG
+# 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
-
-# 2. STATE MANAGEMENT (Ensuring no variables are 'missing')
-if 'view_mode' not in st.session_state:
-    st.session_state.view_mode = 'original'
-if 'analysis_run' not in st.session_state:
-    st.session_state.analysis_run = False
-if 'challenges_selection' not in st.session_state:
-    st.session_state.challenges_selection = ["None"]
-
-# --- THE STABLE SCROLL FIX ---
-# Triggers at the start of the script to ensure the page is always at top when viewing recommendations
-if st.session_state.view_mode == 'alternative':
-    components.html(
-        """<script>window.parent.document.querySelector('section.main').scrollTo(0, 0);</script>""",
-        height=0,
-    )
 
 st.markdown(
     """
@@ -37,7 +21,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# TAG SYNC LOGIC
+# 2. STATE MANAGEMENT
+if 'view_mode' not in st.session_state:
+    st.session_state.view_mode = 'original'
+if 'analysis_run' not in st.session_state:
+    st.session_state.analysis_run = False
+if 'challenges_selection' not in st.session_state:
+    st.session_state.challenges_selection = ["None"]
+
+# TAG SYNC LOGIC (The "None" Fix)
 def sync_logic():
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
@@ -126,6 +118,12 @@ if st.session_state.view_mode == 'original':
                         st.rerun()
 
 else:
+    # --- TRIGGER SCROLL TO TOP ON RENDERING ALTERNATIVE VIEW ---
+    components.html(
+        """<script>window.parent.document.querySelector('section.main').scrollTo(0, 0);</script>""",
+        height=0,
+    )
+    
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
