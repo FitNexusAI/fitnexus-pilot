@@ -31,16 +31,22 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# --- AUTO-SCROLL TRIGGER ---
-# Forces the browser to the top of the 'main' section upon re-render
+# --- ROBUST AUTO-SCROLL TRIGGER ---
+# This JavaScript targets multiple possible scroll containers to ensure it works in any browser.
 if st.session_state.view_mode == 'alternative':
     components.html(
         """
         <script>
-            var mainSection = window.parent.document.querySelector('section.main');
-            if (mainSection) {
-                mainSection.scrollTo({ top: 0, behavior: 'instant' });
-            }
+            var scrollTargets = [
+                window.parent.document.querySelector('section.main'),
+                window.parent.document.querySelector('.main'),
+                window.parent
+            ];
+            scrollTargets.forEach(function(target) {
+                if (target && target.scrollTo) {
+                    target.scrollTo({ top: 0, behavior: 'auto' });
+                }
+            });
         </script>
         """,
         height=0,
