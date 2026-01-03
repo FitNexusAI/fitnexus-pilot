@@ -13,7 +13,6 @@ st.markdown(
     h1, h2, h3 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    .logo-text { font-weight: bold; font-size: 24px; color: #333; margin-bottom: 0px; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -34,7 +33,6 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
-    """STRICT MUTUAL EXCLUSION: If 'None' is chosen, remove others. If challenges added, remove 'None'."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -48,7 +46,6 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo_state():
-    """FACTORY RESET: Returns everything to a blank, original state."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
     st.session_state.h_key = ""
@@ -56,14 +53,10 @@ def reset_demo_state():
     if 'challenge_widget' in st.session_state:
         st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (FitNexus Branded)
+# 3. SIDEBAR
 with st.sidebar:
-    # Matches the 'logo.png' in your local directory and GitHub root
-    try:
-        st.image("logo.png", use_container_width=True)
-    except:
-        st.markdown('<p class="logo-text">⚡ FitNexusAI</p>', unsafe_allow_html=True)
-    
+    # Verified logo path from your directory
+    st.image("logo.png", use_container_width=True)
     st.caption("AI-Powered Fit Intelligence | v2.1.0")
     st.divider()
     
@@ -77,14 +70,13 @@ with st.sidebar:
     active = st.session_state.challenges_selection
     real_issues = [c for c in active if c != "None"]
     
-    # Unified Shopper Context Summary
     st.info(f"**Biometrics:** {h_val if h_val else 'Not Set'}, {b_val if b_val else 'Not Set'}\n\n"
             f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
     
     st.divider()
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
-# 4. MAIN CONTENT (Retailer Branded)
+# 4. MAIN CONTENT
 st.subheader("🛒 Premium Activewear Co.")
 st.caption("Official Retail Partner Integration")
 st.divider()
@@ -93,9 +85,44 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Original Product Image
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
-        st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00
+        # FIXED LINE 101: Added missing closing quotes
+        st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
+        
+        if h_val and b_val and not real_issues:
+             st.success("🎯 FitNexus Confidence: 94% Match")
+        elif real_issues:
+             st.error("⚠️ Fit Alert: Low Confidence Match")
+
+        st.write("A versatile layer with a smooth full-length zipper and soft fabric.")
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
+        st.button("Add to Bag")
+
+        with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
+            st.caption(f"Analyzing for: {h_val if h_val else 'Not Set'} | {b_val if b_val else 'Not Set'} | {', '.join(active)}")
+            st.text_input("Ask a question:", "Will this fit my body type?", key="q_box")
+            
+            if st.button("Run Analysis"):
+                if not real_issues:
+                    st.success("Analysis complete: This item is a high-confidence match for your profile.")
+                else:
+                    st.warning("### Fit Alert:")
+                    st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
+                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This jacket provides a smoother line and doesn't increase in width when sized up. It should provide a more comfortable and defined fit for your body type.")
+                    st.button("👉 Shop Recommended Alternative", on_click=lambda: st.session_state.update({"view_mode": "alternative"}))
+
+else:
+    with col1:
+        st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
+                 caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
+    with col2:
+        st.success("🏆 FitNexus Confidence: 98% Match for your profile")
+        st.title("CloudSoft Longline Zip-Up")
+        st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
+        st.write(f"Designed with a longer profile specifically to accommodate **{', '.join(real_issues)}**. This style ensures comfort and coverage that moves with you.")
+        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
+        if st.button("Add to Bag"): st.balloons()
+        st.button("← Back to Original Item", on_click=lambda: st.session_state.update({"view_mode": "original"}))
