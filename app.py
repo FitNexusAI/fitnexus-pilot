@@ -12,12 +12,14 @@ st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo
 
 # --- THE LOGO FIX ---
 # Load and display the logo in the sidebar
+# --- THE LOGO FIX ---
+# Load and display the logo. Remove the st.sidebar.title line if you have one.
 try:
     logo = Image.open('logo.png')
-    st.sidebar.image(logo, width=150)
+    st.sidebar.image(logo, use_container_width=True) # This ensures it fits the sidebar perfectly
 except FileNotFoundError:
-    st.sidebar.error("Logo file not found. Ensure 'logo.png' is in the root directory.")
-
+    st.sidebar.title("Fitnexus Ai") # Fallback text only if image is missing
+    st.sidebar.error("Logo file not found in root directory.")
 # --- THE STABLE SCROLL FIX ---
 if st.session_state.get('view_mode') == 'alternative':
     components.html(
