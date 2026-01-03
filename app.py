@@ -33,7 +33,7 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
-    """Ensures 'None' and specific challenges never coexist."""
+    """STRICT MUTUAL EXCLUSION: Ensures 'None' and specific challenges never coexist."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -84,15 +84,18 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Hero Image: Woman in Grey Zip-Up
+        # Verified Hero Image
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        if h_val and b_val:
+        # CORRECTED LOGIC: Only show 94% Match if NO challenges are selected
+        if h_val and b_val and not real_issues:
              st.success("🎯 FitNexus Confidence: 94% Match")
+        elif real_issues:
+             st.error("⚠️ Fit Alert: Low Confidence Match")
 
         st.write("A versatile layer for seasonal transitions. Features a smooth full-length zipper and soft, insulating fabric.")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
@@ -106,6 +109,7 @@ if st.session_state.view_mode == 'original':
                 if not real_issues:
                     st.success("Analysis complete: This item is a high-confidence match for your standard profile.")
                 else:
+                    # HUMANIZED TONE FROM DESIGN UX
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     
@@ -115,10 +119,11 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # CORRECTED: Specific Grey ZIP-UP Fleece Image
+        # CORRECTED SECONDARY IMAGE: Woman in Grey ZIP-UP fleece
         st.image("https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
+        # High confidence for the alternative item
         st.success("🏆 FitNexus Confidence: 98% Match for your profile")
         st.title("CloudSoft Longline Zip-Up")
         st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
