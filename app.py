@@ -33,7 +33,7 @@ FIT_OPTIONS = [
 ]
 
 def sync_logic():
-    """STRICT MUTUAL EXCLUSION: Ensures 'None' and specific challenges never coexist."""
+    """Ensures 'None' and specific challenges never coexist."""
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
     if not current:
@@ -47,7 +47,7 @@ def sync_logic():
         st.session_state.challenges_selection = current
 
 def reset_demo():
-    """Returns demo to original blank state."""
+    """Wipes shopper data and returns to original blank state."""
     st.session_state.view_mode = 'original'
     st.session_state.challenges_selection = ["None"]
     if 'h_key' in st.session_state: st.session_state.h_key = ""
@@ -57,7 +57,7 @@ def reset_demo():
 # 3. SIDEBAR
 with st.sidebar:
     st.header("FitNexus Engine")
-    st.caption("v2.1.0 | Enterprise Retail Build")
+    st.caption("v2.1.0 | Enterprise Build")
     st.divider()
     
     st.subheader("Simulated Shopper Context")
@@ -84,20 +84,19 @@ col1, col2 = st.columns([1, 1])
 
 if st.session_state.view_mode == 'original':
     with col1:
-        # Verified Hero Image: Female in Grey Zip-Up performance fleece
         st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
     with col2:
         st.title("Textured Fleece Zip-Up Jacket")
         st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
         
-        # LOGIC: Only show Confidence Badge if NO challenges are selected
+        # Badge logic: Only appears if biometrics are set AND no challenges are selected
         if h_val and b_val and not real_issues:
              st.success("🎯 FitNexus Confidence: 94% Match")
         elif real_issues:
              st.error("⚠️ Fit Alert: Low Confidence Match")
 
-        st.write("A versatile layer for seasonal transitions. Features a smooth full-length zipper and soft, insulating fabric.")
+        st.write("A versatile layer with a smooth full-length zipper and soft fabric.")
         st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
         st.button("Add to Bag")
 
@@ -107,9 +106,8 @@ if st.session_state.view_mode == 'original':
             
             if st.button("Run Analysis"):
                 if not real_issues:
-                    st.success("Analysis complete: This item is a high-confidence match for your standard profile.")
+                    st.success("Analysis complete: This item is a high-confidence match for your profile.")
                 else:
-                    # HUMANIZED TONE FROM DESIGN UX
                     st.warning("### Fit Alert:")
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**, as it may sit higher on your waist than is comfortable.")
                     
@@ -119,8 +117,8 @@ if st.session_state.view_mode == 'original':
 
 else:
     with col1:
-        # VERIFIED SECONDARY IMAGE: Female in technical Grey ZIP-UP fleece jacket
-        st.image("https://images.pexels.com/photos/6311613/pexels-photo-6311613.jpeg?auto=compress&cs=tinysrgb&w=800",
+        # FIXED IMAGE: Red-haired woman in charcoal zip-up sweatshirt
+        st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
     with col2:
         st.success("🏆 FitNexus Confidence: 98% Match for your profile")
