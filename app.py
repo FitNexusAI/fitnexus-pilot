@@ -1,8 +1,19 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. PAGE CONFIG & CUSTOM CSS (Restored Original Styles)
+# 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
+
+# --- THE STABLE SCROLL FIX ---
+if st.session_state.get('view_mode') == 'alternative':
+    components.html(
+        """
+        <script>
+            window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'instant' });
+        </script>
+        """,
+        height=0,
+    )
 
 st.markdown(
     """
@@ -29,15 +40,6 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# --- THE SPECIFIC SCROLL FIX ---
-# This script only renders when the mode is 'alternative', forcing the top-level window to scroll up.
-if st.session_state.view_mode == 'alternative':
-    components.html(
-        """<script>window.parent.document.querySelector('section.main').scrollTo(0, 0);</script>""",
-        height=0,
-    )
-
-# TAG SYNC LOGIC (Restored)
 def sync_logic():
     current = st.session_state.challenge_widget
     previous = st.session_state.challenges_selection
@@ -56,7 +58,7 @@ def reset_demo_state():
     st.session_state.challenges_selection = ["None"]
     st.session_state.challenge_widget = ["None"]
 
-# 3. SIDEBAR (Restored Branding)
+# 3. SIDEBAR
 with st.sidebar:
     try:
         st.image("logo.png", use_container_width=True)
@@ -84,7 +86,7 @@ with st.sidebar:
     st.divider()
     st.button("🔄 Reset Demo", on_click=reset_demo_state)
 
-# 4. MAIN CONTENT (Restored original layout)
+# 4. MAIN CONTENT
 st.subheader("🛒 Premium Activewear Co.")
 st.caption("Official Retail Partner Integration")
 st.divider()
@@ -119,9 +121,11 @@ if st.session_state.view_mode == 'original':
                 if not real_issues:
                     st.success("Analysis complete: High-confidence match.")
                 else:
-                    # RESTORED ORIGINAL FIT ALERT STYLE
-                    st.warning(f"### Fit Alert: Potential issues with {', '.join(real_issues)}.")
-                    st.write("I recommend the **CloudSoft Longline Zip-Up** instead.")
+                    # RESTORED FIT ALERT DESIGN
+                    st.warning(f"### Fit Alert:")
+                    st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. Specifically, your **{', '.join(real_issues)}** may cause fit issues with the standard cut of this garment.")
+                    st.write("As an alternative, I recommend instead the **CloudSoft Longline Zip-Up**. This style should provide a more comfortable and defined fit for your body type.")
+                    
                     if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
@@ -143,14 +147,16 @@ else:
             st.session_state.analysis_run = False
             st.rerun()
 
-# 5. RESTORED FULL FAQ & FOOTER
+# 5. GENERALIZED FAQ & FOOTER
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
     st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks.")
+
 with st.expander("How does this impact the Return Rate (RTO)?"):
-    st.write("Retail partners using FitNexusAI typically see a **25-35% reduction in size-related returns**.")
+    st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns. By proactively flagging fit conflicts, we prevent the purchase of items destined to be returned.")
+
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for recommendations.")
+    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized. All biometric data is encrypted and used solely for providing fit recommendations.")
 
 st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
