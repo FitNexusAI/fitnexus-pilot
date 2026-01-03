@@ -118,9 +118,15 @@ if st.session_state.view_mode == 'original':
                         st.rerun()
 
 else:
-    # --- TRIGGER SCROLL TO TOP ON RENDERING ALTERNATIVE VIEW ---
+    # --- THE DELAYED SCROLL FIX ---
     components.html(
-        """<script>window.parent.document.querySelector('section.main').scrollTo(0, 0);</script>""",
+        """
+        <script>
+            setTimeout(function() {
+                window.parent.document.querySelector('section.main').scrollTo(0, 0);
+            }, 10);
+        </script>
+        """,
         height=0,
     )
     
