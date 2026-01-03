@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 # 1. PAGE CONFIG & CUSTOM CSS
 st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
@@ -28,9 +29,20 @@ if 'analysis_run' not in st.session_state:
 if 'challenges_selection' not in st.session_state:
     st.session_state.challenges_selection = ["None"]
 
-# --- NATIVE SCROLL ANCHOR ---
-# This creates an invisible point at the top of the page
-st.markdown("<div id='top'></div>", unsafe_allow_html=True)
+# --- THE FIX: ROBUST AUTO-SCROLL ---
+# This executes as soon as the app reruns in 'alternative' mode
+if st.session_state.view_mode == 'alternative':
+    components.html(
+        """
+        <script>
+            var mainSection = window.parent.document.querySelector('section.main');
+            if (mainSection) {
+                mainSection.scrollTo({ top: 0, behavior: 'auto' });
+            }
+        </script>
+        """,
+        height=0,
+    )
 
 def sync_logic():
     current = st.session_state.challenge_widget
@@ -121,16 +133,12 @@ if st.session_state.view_mode == 'original':
                     st.write(f"It seems like the Textured Fleece Zip-Up Jacket may not be the best fit for your body type. The jacket is designed to be short in the body which could be a problem due to your **{', '.join(real_issues)}**.")
                     st.write("I recommend the **CloudSoft Longline Zip-Up** instead.")
                     
-                    # URL ACTION: Forces browser to jump to #top div
-                    st.markdown('<a href="#top" target="_self"><button style="background-color:#F74845; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; width:100%;">👉 Shop Recommended Alternative</button></a>', unsafe_allow_html=True)
-                    
-                    # Invisible button to trigger state change when clicked
-                    if st.button("Confirm Recommendation Selection", key="hidden_trigger"):
+                    # SINGLE BUTTON SOLUTION: Removes the 'Confirm' button entirely
+                    if st.button("👉 Shop Recommended Alternative"):
                         st.session_state.view_mode = 'alternative'
                         st.rerun()
 
 else:
-    # Anchor jump happens because we re-render starting from the top div
     with col1:
         st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
                  caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
@@ -151,11 +159,11 @@ else:
 st.divider()
 st.subheader("Enterprise Integration FAQ")
 with st.expander("How long does a standard integration take?"):
-    st.write("Our lightweight API-first architecture allows for a basic integration in as little as 2 weeks.")
+    st.write("Our lightweight API-first architecture allows for a basic 'Powered by FitNexus' integration in as little as 2 weeks.")
 with st.expander("How does this impact the Return Rate (RTO)?"):
     st.write("Retail partners using FitNexusAI typically see a meaningful reduction in size-related returns.")
 with st.expander("Is shopper data secure and GDPR/CCPA compliant?"):
-    st.write("Absolutely. FitNexusAI does not store PII unless authorized. All biometric data is encrypted.")
+    st.write("Absolutely. FitNexusAI does not store Personally Identifiable Information (PII) unless authorized.")
 
 # 6. ENTERPRISE FOOTER
 st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
