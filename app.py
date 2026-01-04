@@ -1,159 +1,83 @@
 import streamlit as st
+from PIL import Image
 import streamlit.components.v1 as components
+import os
 
-# 1. PAGE CONFIG & CUSTOM CSS
-st.set_page_config(layout="wide", page_title="FitNexus | Retail Integration Demo")
+# 1. PAGE CONFIG
+st.set_page_config(layout="wide", page_title="FitNexusAI | Retail Integration Demo")
 
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebar"] { background-color: #f8f9fa; }
-    span[data-baseweb="tag"] { background-color: #F74845 !important; color: white !important; }
-    div.stButton > button:first-child { background-color: #F74845; color: white; border: none; width: 100%; }
-    div.stButton > button:hover { background-color: #D3322F; color: white; }
-    h1, h2, h3 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .logo-text { font-weight: bold; font-size: 24px; color: #333; margin-bottom: 0px; }
-    .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# 2. THE LOGO FIX
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(current_dir, 'logo.png')
+    logo = Image.open(logo_path)
+    st.sidebar.image(logo, use_container_width=True)
+except Exception as e:
+    st.sidebar.title("FitNexus Ai")
+    st.sidebar.error("Branding logo not found.")
 
-# 2. STATE MANAGEMENT
-if 'view_mode' not in st.session_state:
-    st.session_state.view_mode = 'original'
-if 'analysis_run' not in st.session_state:
-    st.session_state.analysis_run = False
-if 'challenges_selection' not in st.session_state:
-    st.session_state.challenges_selection = ["None"]
-
-# TAG SYNC LOGIC (The "None" Fix)
-def sync_logic():
-    current = st.session_state.challenge_widget
-    previous = st.session_state.challenges_selection
-    if not current:
-        new_selection = ["None"]
-    elif "None" in current and len(current) > 1:
-        new_selection = [x for x in current if x != "None"] if "None" in previous else ["None"]
-    else:
-        new_selection = current
-    st.session_state.challenges_selection = new_selection
-    st.session_state.challenge_widget = new_selection
-
-def reset_demo_state():
-    st.session_state.view_mode = 'original'
-    st.session_state.analysis_run = False
-    st.session_state.challenges_selection = ["None"]
-    st.session_state.challenge_widget = ["None"]
-
-# 3. SIDEBAR (FitNexus Branded)
-with st.sidebar:
-    try:
-        st.image("logo.png", use_container_width=True)
-    except:
-        st.markdown('<p class="logo-text">Fitnexus Ai</p>', unsafe_allow_html=True)
-    
-    st.caption("AI-Powered Fit Intelligence | v2.1.0")
-    st.divider()
-    
-    st.subheader("Shopper Profile")
-    h_val = st.selectbox("Height", ["", "Under 5'0", "5'0-5'2", "5'3-5'7", "5'8-5'11", "Over 6'0"], key="h_key")
-    b_val = st.selectbox("Body Type", ["", "Curvy", "Athletic", "Slender", "Full Figured", "Petite"], key="b_key")
-    
-    FIT_OPTIONS = ["None", "Long Torso", "Short Torso", "Broad Shoulders", "Narrow Shoulders", "Long Arms", "Short Arms", "Full Bust", "Small Bust", "Round Stomach", "Soft Midsection", "Curvy Hips", "Wide Hips", "Narrow Hips", "High Hip Shelf", "Athletic Thighs", "Long Legs", "Short Legs", "Muscular Calves"]
-    
-    st.multiselect("Fit Challenges", options=FIT_OPTIONS, key="challenge_widget", 
-                   default=st.session_state.challenges_selection, on_change=sync_logic)
-    
-    active = st.session_state.challenges_selection
-    real_issues = [c for c in active if c != "None"]
-    
-    st.info(f"**Biometrics:** {h_val if h_val else 'Not Set'}, {b_val if b_val else 'Not Set'}\n\n"
-            f"**Issues:** {', '.join(real_issues) if real_issues else 'None Selected'}")
-    
-    st.divider()
-    st.button("🔄 Reset Demo", on_click=reset_demo_state)
-
-# 4. MAIN CONTENT
-st.subheader("🛒 Premium Activewear Co.")
-st.caption("Official Retail Partner Integration")
-st.divider()
-
-col1, col2 = st.columns([1, 1])
-
-if st.session_state.view_mode == 'original':
-    with col1:
-        st.image("https://images.pexels.com/photos/7242947/pexels-photo-7242947.jpeg?auto=compress&cs=tinysrgb&w=800",
-                 caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True)
-    with col2:
-        st.title("Textured Fleece Zip-Up Jacket")
-        st.markdown("⭐⭐⭐⭐⭐ (4.8) | **$128.00**")
-        
-        if h_val and b_val and not real_issues:
-             st.success("🎯 FitNexus Confidence: 94% Match")
-        elif real_issues:
-             st.error("⚠️ Fit Alert: Low Confidence Match")
-
-        st.write("A versatile layer with a smooth full-length zipper and soft fabric.")
-        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True)
-        st.button("Add to Bag")
-
-        with st.expander("FitNexus Intelligence (Check My Fit)", expanded=True):
-            st.caption(f"Analyzing for: {h_val} | {b_val} | {', '.join(active)}")
-            st.text_input("Ask a question:", "Will this fit my body type?", key="q_box")
-            
-            if st.button("Run Analysis"):
-                st.session_state.analysis_run = True
-            
-            if st.session_state.analysis_run:
-                if not real_issues:
-                    st.success("Analysis complete: High-confidence match.")
-                else:
-                    st.warning(f"### Fit Alert: Potential issues with {', '.join(real_issues)}.")
-                    st.write("I recommend the **CloudSoft Longline Zip-Up** instead.")
-                    if st.button("👉 Shop Recommended Alternative"):
-                        st.session_state.view_mode = 'alternative'
-                        st.rerun()
-
-else:
-    # --- THE DELAYED SCROLL FIX ---
+# 3. THE STABLE SCROLL FIX
+if st.session_state.get('view_mode') == 'alternative':
     components.html(
         """
         <script>
-            setTimeout(function() {
-                window.parent.document.querySelector('section.main').scrollTo(0, 0);
-            }, 10);
+        window.parent.document.querySelector('section.main').scrollTo({ top: 0, behavior: 'instant' });
         </script>
         """,
         height=0,
     )
+
+# 4. CLEAN UI CSS
+st.markdown("""
+<style>
+    .stAppDeployButton { display: none !important; visibility: hidden !important; }
+    [data-testid="stStatusWidget"] { display: none !important; visibility: hidden !important; }
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
     
-    with col1:
-        st.image("https://images.pexels.com/photos/15759560/pexels-photo-15759560.jpeg?auto=compress&cs=tinysrgb&w=800",
-                 caption="Product ID: LNG-ZIP-009 | CloudSoft Longline Zip-Up", use_container_width=True)
-    with col2:
-        st.success("🏆 FitNexus Confidence: 98% Match")
-        st.title("CloudSoft Longline Zip-Up")
-        st.markdown("⭐⭐⭐⭐⭐ (4.9) | **$138.00**")
-        st.write(f"Optimized for comfort with **{', '.join(real_issues)}** in mind.")
-        st.radio("Size", ["XS/S", "M/L", "XL/XXL"], index=1, horizontal=True, key="size_alt")
-        if st.button("Add to Bag"): st.balloons()
-        
-        if st.button("← Back to Original Item"):
-            st.session_state.view_mode = 'original'
-            st.session_state.analysis_run = False
-            st.rerun()
+    .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
+</style>
+""", unsafe_allow_html=True)
 
-# 5. ENTERPRISE FAQ & FOOTER
-st.divider()
-st.subheader("Enterprise Integration FAQ")
-with st.expander("How long does a standard integration take?"):
-    st.write("A basic integration typically takes as little as 2 weeks.")
-with st.expander("How does this impact the Return Rate (RTO)?"):
-    st.write("Partners typically see a 25-35% reduction in size-related returns.")
-with st.expander("Is shopper data secure?"):
-    st.write("Absolutely. All data is encrypted and used only for recommendations.")
+# 5. PRODUCT AND SHOPPER LOGIC
+st.title("Shopper Profile")
 
-st.markdown('<p class="powered-by">⚡ Powered by FitNexusAI | Enterprise Retail Solutions</p>', unsafe_allow_html=True)
+col1, col2 = st.columns([1, 2])
+
+with col1:
+    st.selectbox("Height", ["5'4\"", "5'5\"", "5'6\"", "5'7\"", "5'8\""])
+    st.selectbox("Body Type", ["Athletic", "Slim", "Average", "Curvy"])
+    st.multiselect("Fit Challenges", ["None", "Long Arms", "Broad Shoulders", "Short Torso"], default="None")
+    st.info("**Biometrics:** Not Set, Not Set \n\n**Issues:** None Selected")
+    
+    if st.button("Reset Demo", type="primary"):
+        st.session_state.clear()
+        st.rerun()
+
+with col2:
+    # --- PRODUCT DETAILS ---
+    st.image("https://i.imgur.com/898989.jpg", caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True) 
+    st.title("Textured Fleece Zip-Up Jacket")
+    st.write("⭐⭐⭐⭐⭐ (4.8) | $128.00")
+    st.write("A versatile layer with a smooth full-length zipper and soft fabric.")
+    st.write("**Size Selection**")
+    st.radio("Size", ["XS/S", "M/L", "XL/XXL"], horizontal=True, label_visibility="collapsed")
+    st.button("Add to Bag", type="primary")
+    st.write("---")
+    
+    # 6. UPDATED FIT ALERT UX
+    with st.expander("✨ FitNexus Intelligence (Check My Fit)", expanded=True):
+        st.write("Analyzing for: || None")
+        st.text_input("Ask a question:", value="Will this fit my body type?")
+        if st.button("Run Analysis"):
+            st.warning("""
+            **Fit Alert:** Based on the user profile provided, the target product - Scuba Oversized Half-Zip Hoodie - may not be an ideal fit. 
+            This hoodie is designed to be short in the body, so it might not accommodate a user with a long torso very well.  
+            
+            As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0. Its slim fit design should work well 
+            with your body type, accommodating both your long torso and broad shoulders.
+            """)
+            st.button("👉 Shop Recommended Alternative", type="primary", use_container_width=True)
+
+# 7. POWERED BY TAG
+st.markdown('<div class="powered-by">Powered by FitNexus AI v2.1.0</div>', unsafe_allow_html=True)
