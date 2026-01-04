@@ -34,50 +34,41 @@ st.markdown("""
     [data-testid="stStatusWidget"] { display: none !important; visibility: hidden !important; }
     #MainMenu {visibility: hidden !important;}
     footer {visibility: hidden !important;}
-    
     .powered-by { text-align: center; color: #999; font-size: 12px; margin-top: 50px; }
 </style>
 """, unsafe_allow_html=True)
 
 # 5. PRODUCT AND SHOPPER LOGIC
 st.title("Shopper Profile")
-
 col1, col2 = st.columns([1, 2])
 
 with col1:
     st.selectbox("Height", ["5'4\"", "5'5\"", "5'6\"", "5'7\"", "5'8\""])
     st.selectbox("Body Type", ["Athletic", "Slim", "Average", "Curvy"])
     st.multiselect("Fit Challenges", ["None", "Long Arms", "Broad Shoulders", "Short Torso"], default="None")
-    st.info("**Biometrics:** Not Set, Not Set \n\n**Issues:** None Selected")
+    st.info("**Biometrics:** Not Set, Not Set  \n**Issues:** None Selected")
     
     if st.button("Reset Demo", type="primary"):
         st.session_state.clear()
         st.rerun()
 
 with col2:
-    # --- PRODUCT DETAILS ---
+    # --- RESTORED PRODUCT DETAILS ---
     st.image("https://i.imgur.com/898989.jpg", caption="Product ID: FLCE-ZIP-001 | Textured Zip-Up Jacket", use_container_width=True) 
+    
     st.title("Textured Fleece Zip-Up Jacket")
     st.write("⭐⭐⭐⭐⭐ (4.8) | $128.00")
     st.write("A versatile layer with a smooth full-length zipper and soft fabric.")
-    st.write("**Size Selection**")
-    st.radio("Size", ["XS/S", "M/L", "XL/XXL"], horizontal=True, label_visibility="collapsed")
-    st.button("Add to Bag", type="primary")
-    st.write("---")
     
-    # 6. UPDATED FIT ALERT UX
-    with st.expander("✨ FitNexus Intelligence (Check My Fit)", expanded=True):
-        st.write("Analyzing for: || None")
-        st.text_input("Ask a question:", value="Will this fit my body type?")
-        if st.button("Run Analysis"):
-            st.warning("""
-            **Fit Alert:** Based on the user profile provided, the target product - Scuba Oversized Half-Zip Hoodie - may not be an ideal fit. 
-            This hoodie is designed to be short in the body, so it might not accommodate a user with a long torso very well.  
-            
-            As an alternative, I recommend the Swiftly Tech Long Sleeve Shirt 2.0. Its slim fit design should work well 
-            with your body type, accommodating both your long torso and broad shoulders.
-            """)
-            st.button("👉 Shop Recommended Alternative", type="primary", use_container_width=True)
+    st.write("**Size**")
+    st.radio("Size Selection", ["XS/S", "M/L", "XL/XXL"], horizontal=True, label_visibility="collapsed")
+    
+    st.button("Add to Bag", type="primary")
+    
+    st.write("---")
+    st.subheader("FitNexus Intelligence (Check My Fit)")
+    st.write("Analyzing for: || None")
+    st.text_input("Ask a question:")
 
-# 7. POWERED BY TAG
+# 6. POWERED BY TAG
 st.markdown('<div class="powered-by">Powered by FitNexus AI v2.1.0</div>', unsafe_allow_html=True)
